@@ -1,10 +1,13 @@
 interface Workspace {
-  id: number
-  name: string
-  description?: string
-  managerBaseUrl: string
-  template?: string
-  apiBaseUrl?: string
-  apiKey?: string
-  apiSecret?: string
+  ID?: number
+  Name: string
+  Description?: string
+  ManagerBaseUrl: string
+  Category?: string
+  ApiBaseUrl?: string
+  ApiKey?: string
+  ApiSecret?: string
+  CreatedAt?: string
+  UpdatedAt?: string
+  TraefikConfig?: string
 }

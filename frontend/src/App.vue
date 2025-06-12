@@ -2,15 +2,14 @@
   <el-container class="min-h-[100vh] mx-auto">
     <el-header height="60px" class="">
       <div class="w-full mx-auto text-white">
-        <el-menu v-if="!_.isEmpty(workspaceStore.currentWorkspace)" mode="horizontal" :default-active="$route.name">
+        <el-menu v-if="!_.isEmpty(workspaceStore.currentWorkspace)" mode="horizontal" :default-active="$route.name as string">
           <el-menu-item index="0" route="" class="!mr-auto">
-            <el-select :model-value="workspaceStore.currentWorkspace?.id" placeholder="Select workspace" class="!w-[140px]">
+            <el-select :model-value="workspaceStore.currentWorkspace?.ID" placeholder="Select workspace" class="!w-[140px]" @change="handleWorkspaceChange">
               <template #header>All workspaces</template>
-              <el-option v-for="item in state.workspaces" :key="item.value" :label="item.label" :value="item.value" />
+              <el-option v-for="item in workspaceStore.workspaces" :key="item.ID" :label="item.Name" :value="item.ID!" />
             </el-select>
           </el-menu-item>
 
-          <el-menu-item index="Home" @click="router.push('/')">Home</el-menu-item>
           <el-menu-item
             v-for="(item, index) in menus"
             :key="index"
@@ -19,7 +18,7 @@
           >{{ item.label }}</el-menu-item>
         </el-menu>
         <h2 v-else class="header-title">
-          Traefik LB Manager
+          <RouterLink to="/">Traefik LB Manager</RouterLink>
         </h2>
       </div>
     </el-header>
@@ -42,29 +41,44 @@
 
 <script setup lang="ts">
 import _ from 'lodash';
-import { reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, reactive } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { RouterLink, RouterView } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace';
 
 const version = __APP_VERSION__
 
 const router = useRouter()
+const route = useRoute()
 const workspaceStore = useWorkspaceStore()
 
-const state = reactive({
-  workspaces: [],
-})
-
 const menus = [
+  {label: 'Home', name: 'Home'},
   {label: 'Rules', name: 'Rules'},
   {label: 'Authentications', name: 'Authentications'},
   {label: 'SSL Certificates', name: 'Certificates'},
 ]
 
+onMounted(async () => {
+  await workspaceStore.fetchIndexAsync()
+  if (_.startsWith(route.path, '/workspaces/') && route.params.id) {
+    let obj = _.find(workspaceStore.workspaces, {ID: Number(route.params.id)})
+    if (obj) { workspaceStore.setCurrentWorkspace(obj) }
+  }
+})
 
+const handleWorkspaceChange = (id: number) => {
+    let obj = _.find(workspaceStore.workspaces, {ID: id})
+    if (obj) {
+      workspaceStore.setCurrentWorkspace(obj)
+      router.push(`/workspaces/${id}/rules`)
+    }
+}
 const handleClickMenu = (menu: any) => {
-  router.push({name: menu.name, params: {id: workspaceStore.currentWorkspace?.id}})
+  if (menu.name === 'Home') {
+    workspaceStore.setCurrentWorkspace(null)
+  }
+  router.push({name: menu.name, params: {id: workspaceStore.currentWorkspace?.ID}})
 }
 
 </script>
