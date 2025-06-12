@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+body {
+  background-color: var(--el-bg-color);
+}
+
 #app {
-  max-width: 1280px;
+  /* max-width: 1280px; */
   min-height: 100%;
   margin: 0 auto;
   font-weight: normal;
+}
+
+.section-box {
+  padding: 12px;
+  background-color: white;
 }
