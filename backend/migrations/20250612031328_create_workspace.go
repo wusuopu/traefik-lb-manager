@@ -6,6 +6,7 @@ import (
 	"database/sql"
 
 	"github.com/pressly/goose/v3"
+	"gorm.io/datatypes"
 )
 
 // https://gorm.io/docs/migration.html
@@ -24,6 +25,7 @@ func createModel20250612031328 () interface{} {
 		ApiBaseUrl			string						`gorm:"type:varchar(500);"`
 		ApiKey					string						`gorm:"type:varchar(200);"`
 		ApiSecret				string						`gorm:"type:varchar(200);"`
+		Entrypoints			datatypes.JSON		`gorm:"type:json;"`		// 该实例可用的 entrypoints
 		TraefikConfig		string						`gorm:"type:text;"`
 	}
 	return &Workspace{}

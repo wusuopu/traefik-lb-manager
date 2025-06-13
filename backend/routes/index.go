@@ -21,5 +21,6 @@ func Init(router *gin.RouterGroup, engine *gin.Engine, embededFiles embed.FS) {
 	// router.GET("/dashboard", dashboard.Index)
 
 	workspaceGroup := router.Group("/workspaces")
-	InitWorkspace(workspaceGroup)
+	InitWorkspace(workspaceGroup, engine)
+	InitServer(workspaceGroup, engine)
 }
