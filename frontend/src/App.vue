@@ -55,9 +55,9 @@ const workspaceStore = useWorkspaceStore()
 const menus = computed(() => {
   const items = [
     {label: 'Home', name: 'Home'},
+    {label: 'Rules', name: 'Rules'},
   ]
   if (workspaceStore.detail && workspaceStore.detail?.Category !== 'custom') {
-    items.push({label: 'Rules', name: 'Rules'})
     items.push({label: 'Authentications', name: 'Authentications'})
   }
   items.push({label: 'SSL Certificates', name: 'Certificates'})

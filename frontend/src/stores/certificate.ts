@@ -13,6 +13,9 @@ export const useCertificateStore = defineStore('certificates', {
     async createAsync (workspaceId: number, certificate: Certificate) {
       const resp = await API.create(workspaceId, certificate);
     },
+    async updateAsync (workspaceId: number, certificate: Certificate) {
+      const resp = await API.update(workspaceId, certificate.ID!, certificate);
+    },
     async deleteAsync (workspaceId: number, id: number) {
       await API.delete(workspaceId, id);
     },

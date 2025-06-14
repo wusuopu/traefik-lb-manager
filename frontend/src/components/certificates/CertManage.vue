@@ -16,9 +16,12 @@
           <template #default="scope">
             <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
               <template #reference>
-                <el-button v-loading.fullscreen.lock="state.loading" type="danger">Delete</el-button>
+                <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
               </template>
             </el-popconfirm>
+            <el-button type="primary" size="small" @click="handleEdit(scope.row)">
+              Edit
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -38,7 +41,7 @@
             </el-form-item>
 
             <el-form-item label="Domain" prop="Domain" required>
-              <el-input v-model="state.form.data.Domain" placeholder="www.example.com" />
+              <el-input v-model="state.form.data.Domain" placeholder="www.example.com" :disabled="state.form.action === 'update'" />
             </el-form-item>
 
             <el-form-item label="Enable" prop="Enable" required>
@@ -104,6 +107,13 @@ const handleAddCert = () => {
   formRef.value?.resetFields()
   state.form.showDrawer = true
 }
+const handleEdit = (row: Certificate) => {
+  state.form.action = 'update'
+  state.form.data = {...row}
+
+  formRef.value?.resetFields()
+  state.form.showDrawer = true
+}
 
 const handleSubmit = async () => {
   await formRef.value!.validate()
@@ -112,8 +122,13 @@ const handleSubmit = async () => {
   try {
     state.form.loading = true
 
-    await certificateStore.createAsync(workspaceStore.detail?.ID!, payload)
-    ElMessage.success('Certificate has created')
+    if (state.form.action === 'create') {
+      await certificateStore.createAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Certificate has created')
+    } else {
+      await certificateStore.updateAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Certificate has changed')
+    }
   } catch (error: any) {
     ElMessage.error(error.response.data.Error)
     return

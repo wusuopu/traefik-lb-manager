@@ -55,6 +55,32 @@ func Create(ctx *gin.Context) {
 }
 
 func Update(ctx *gin.Context) {
+	var obj models.Certificate
+	results := di.Container.DB.First(&obj, ctx.Param("certificateId"))
+	if results.Error != nil {
+		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+			schemas.MakeErrorResponse(ctx, "Certificate Not Found", 404)
+		} else {
+			schemas.MakeErrorResponse(ctx, results.Error, 500)
+		}
+		return
+	}
+
+	body, _ := ctx.Get("rawBody")
+	data := gconv.Map(body)
+	data = lo.PickByKeys(data, []string{"Name", "Enable"})
+	payload := make(map[string]interface{})
+	for k, v := range data {
+		payload[gstr.CaseSnake(k)] = v
+	}
+
+	results = di.Container.DB.Model(&models.Certificate{}).Where("id = ?", ctx.Param("certificateId")).Updates(payload)
+	if results.Error != nil {
+		schemas.MakeErrorResponse(ctx, results.Error, 500)
+		return
+	}
+
+	schemas.MakeResponse(ctx, true, nil)
 }
 
 func Delete(ctx *gin.Context) {

@@ -20,4 +20,6 @@ type Certificate struct {
 	Status			string						`gorm:"type:varchar(20);default:init;"`
 	Enable			bool
 	WorkspaceID int
+	AcmeToken		string						`gorm:"type:varchar(100);"`
+	AcmeKeyAuth	string						`gorm:"type:varchar(100);"`
 }

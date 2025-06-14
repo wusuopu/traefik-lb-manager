@@ -4,6 +4,7 @@
   </div>
   <div class="flex gap-1 mb-2">
     <el-button type="primary" @click="insertHTTPChallengeRule">Insert Let's Encrypt Rule</el-button>
+    <el-button type="primary" @click="insertTLSCert">Insert TLS Config</el-button>
     <el-popconfirm @confirm="handleUpdate" title="Are you sure to update this rule?">
       <template #reference>
         <el-button v-loading.fullscreen.lock="state.loading" type="danger">Update</el-button>
@@ -14,7 +15,7 @@
   <codemirror
     v-model="code"
     placeholder="Traefik config here..."
-    :style="{ height: '400px' }"
+    :style="{ minHeight: '400px', height: '100%', }"
     :autofocus="true"
     :indent-with-tab="true"
     :tab-size="2"
@@ -24,14 +25,17 @@
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash';
 import { onMounted, reactive, ref, shallowRef } from 'vue';
-import { useWorkspaceStore } from '@/stores/workspace';
+import { ElMessage } from 'element-plus';
 import { Codemirror } from 'vue-codemirror'
 import { yaml } from '@codemirror/lang-yaml'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { ElMessage } from 'element-plus';
+import { useWorkspaceStore } from '@/stores/workspace';
+import { useCertificateStore } from '@/stores/certificate';
 
 const workspaceStore = useWorkspaceStore()
+const certificateStore = useCertificateStore()
 const code = ref('')
 const editor = shallowRef()
 
@@ -83,6 +87,26 @@ const insertHTTPChallengeRule = () => {
         loadBalancer:
           servers:
             - url: "${workspaceStore.detail?.ManagerBaseUrl}"\n`)
+}
+
+const insertTLSCert = async () => {
+  state.loading = true
+  try {
+    await certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  } catch (error) {
+    return
+  } finally {
+    state.loading = false
+  }
+
+  let content = code.value
+  const certificates = _.reduce(certificateStore.certificates, (ret, item) => {
+    if (item.Enable) {
+      ret.push(`    - certFile: /etc/traefik/ssl/${item.Domain}.crt\n      keyFile: /etc/traefik/ssl/${item.Domain}.key`)
+    }
+    return ret
+  }, [] as string[])
+  code.value = content + `\ntls:\n  certificates:\n${certificates.join('\n')}`
 }
 
 const handleUpdate = async () => {
