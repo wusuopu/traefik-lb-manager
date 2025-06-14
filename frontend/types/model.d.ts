@@ -9,5 +9,6 @@ interface Workspace {
   ApiSecret?: string
   CreatedAt?: string
   UpdatedAt?: string
+  Entrypoints?: string[]
   TraefikConfig?: string
 }

@@ -3,7 +3,7 @@
     <el-button type="primary" @click="handleAddWorkspace">Create workspace</el-button>
   </div>
 
-  <div class="section-box mb-3">
+  <div class="section-box-dark mb-3">
     <el-table :data="workspaceStore.workspaces" style="width: 100%">
         <el-table-column prop="Name" label="Name" width="150">
           <template #default="scope">
@@ -11,9 +11,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="Category" label="Category" width="150" />
+        <el-table-column prop="Entrypoints" label="Entrypoints" width="150" />
         <el-table-column prop="ApiBaseUrl" label="ApiBaseUrl" width="450" />
-        <el-table-column prop="CreatedAt" label="CreatedAt" width="250" />
-        <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" />
+        <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+        <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column fixed="right" label="Operations" min-width="120">
           <template #default="scope">
             <el-button type="primary" size="small" @click="handleEditWorkspace(scope.row)">
@@ -49,23 +50,34 @@
             </el-alert>
 
             <el-form-item label="Category" prop="Category" required>
-              <el-radio-group v-model="state.form.data.Category" size="small">
+              <el-radio-group v-model="state.form.data.Category" :disabled="state.form.action === 'update'">
                 <el-radio-button label="Rancher V1" value="rancher_v1" />
                 <el-radio-button label="Portainer Swarm" value="portainer_swarm" />
+                <el-radio-button label="Common" value="common" />
                 <el-radio-button label="Custom" value="custom" />
               </el-radio-group>
             </el-form-item>
 
+            <el-form-item label="Entrypoints" prop="Entrypoints" required>
+              <el-input-tag v-model="state.form.data.Entrypoints" clearable placeholder="Please input" />
+            </el-form-item>
+            <el-alert type="info" show-icon :closable="false">
+              <p>Please define these entrypoints in traefik Static Configuration</p>
+            </el-alert>
+
             <template v-if="state.form.data.Category === 'rancher_v1' || state.form.data.Category === 'portainer_swarm'">
               <el-form-item label="ApiBaseUrl" prop="ApiBaseUrl" required>
-                <el-input v-model="state.form.data.ApiBaseUrl" placeholder="" />
+                <el-input
+                  v-model="state.form.data.ApiBaseUrl"
+                  :placeholder="state.form.data.Category === 'rancher_v1' ? 'http://<host>/v2-beta/projects/<env>' : 'http://host:port'"
+                />
               </el-form-item>
 
-              <el-form-item label="ApiKey" prop="ApiKey">
+              <el-form-item label="ApiKey" prop="ApiKey" required>
                 <el-input v-model="state.form.data.ApiKey" placeholder="" />
               </el-form-item>
 
-              <el-form-item label="ApiSecret" prop="ApiSecret">
+              <el-form-item v-if="state.form.data.Category === 'rancher_v1'" label="ApiSecret" prop="ApiSecret" required>
                 <el-input v-model="state.form.data.ApiSecret" placeholder="" />
               </el-form-item>
             </template>
@@ -85,10 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, ref } from 'vue';
+import _ from 'lodash';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance } from 'element-plus'
 import { useWorkspaceStore } from '@/stores/workspace';
+import format from '@/lib/format';
 
 const router = useRouter()
 const workspaceStore = useWorkspaceStore()
@@ -122,10 +136,11 @@ const handleAddWorkspace = () => {
     Name: '',
     Description: '',
     ManagerBaseUrl: `${location.protocol}//${location.host}${location.pathname}`,
-    Category: 'custom',
+    Category: 'common',
     ApiBaseUrl: '',
     ApiKey: '',
     ApiSecret: '',
+    Entrypoints: ['web', 'websecure'],
   }
 
   formRef.value?.resetFields()
@@ -149,11 +164,12 @@ const handleSubmitWorkspace = async () => {
   await formRef.value!.validate()
 
   const payload = {...state.form.data}
-  if (payload.Category === 'custom') {
+  if (payload.Category === 'custom' || payload.Category === 'common') {
     delete payload.ApiBaseUrl
     delete payload.ApiKey
     delete payload.ApiSecret
   }
+  payload.Entrypoints = _.uniq(payload.Entrypoints)
 
   try {
     state.form.loading = true

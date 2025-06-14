@@ -16,4 +16,10 @@ export default {
   delete (id: number) {
     return http.delete(`/workspaces/${id}`);
   },
+  generateTraefikConfigAsync (id: number) {
+    return http.post(`/workspaces/${id}/traefik.yml`);
+  },
+  updateTraefikConfigAsync (id: number, config: string) {
+    return http.put(`/workspaces/${id}/traefik.yml`, {traefik_config: config});
+  },
 }

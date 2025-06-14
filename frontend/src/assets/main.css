@@ -13,5 +13,10 @@ body {
 
 .section-box {
   padding: 12px;
-  background-color: white;
+  background-color: var(--el-fill-color-lighter);
+}
+
+.section-box-dark {
+  padding: 12px;
+  border: 1px solid var(--el-border-color);
 }

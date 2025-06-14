@@ -4,6 +4,7 @@ import API from '@/api/workspace';
 export const useWorkspaceStore = defineStore('workspaces', {
   state: () => ({
     workspaces: [] as Workspace[],
+    detail: null as Workspace | null,
     currentWorkspace: null as Workspace | null,
   }),
   actions: {
@@ -13,7 +14,7 @@ export const useWorkspaceStore = defineStore('workspaces', {
     },
     async fetchShowAsync (id: number) {
       const resp = await API.show(id);
-      this.currentWorkspace = resp.data.Data;
+      this.detail = resp.data.Data;
     },
     async createAsync (workspace: Workspace) {
       const resp = await API.create(workspace);
@@ -24,6 +25,12 @@ export const useWorkspaceStore = defineStore('workspaces', {
     async deleteAsync (id: number) {
       await API.delete(id);
       this.workspaces = this.workspaces.filter((workspace) => workspace.ID !== id);
+    },
+    async generateTraefikConfigAsync (id: number) {
+      await API.generateTraefikConfigAsync(id)
+    },
+    async updateTraefikConfigAsync (id: number, config: string) {
+      await API.updateTraefikConfigAsync(id, config)
     },
     setCurrentWorkspace (workspace: Workspace|null) {
       this.currentWorkspace = workspace;

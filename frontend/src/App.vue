@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import _ from 'lodash';
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { RouterLink, RouterView } from 'vue-router'
 import { useWorkspaceStore } from '@/stores/workspace';
@@ -52,12 +52,17 @@ const router = useRouter()
 const route = useRoute()
 const workspaceStore = useWorkspaceStore()
 
-const menus = [
-  {label: 'Home', name: 'Home'},
-  {label: 'Rules', name: 'Rules'},
-  {label: 'Authentications', name: 'Authentications'},
-  {label: 'SSL Certificates', name: 'Certificates'},
-]
+const menus = computed(() => {
+  const items = [
+    {label: 'Home', name: 'Home'},
+  ]
+  if (workspaceStore.detail && workspaceStore.detail?.Category !== 'custom') {
+    items.push({label: 'Rules', name: 'Rules'})
+    items.push({label: 'Authentications', name: 'Authentications'})
+  }
+  items.push({label: 'SSL Certificates', name: 'Certificates'})
+  return items
+})
 
 onMounted(async () => {
   await workspaceStore.fetchIndexAsync()
