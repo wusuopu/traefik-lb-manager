@@ -22,5 +22,6 @@ func Init(router *gin.RouterGroup, engine *gin.Engine, embededFiles embed.FS) {
 
 	workspaceGroup := router.Group("/workspaces")
 	InitWorkspace(workspaceGroup, engine)
+	InitCertificate(workspaceGroup, engine)
 	InitServer(workspaceGroup, engine)
 }
