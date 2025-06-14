@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"app/di"
+	"app/jobs"
 	"app/models"
 	"app/schemas"
 	"errors"
@@ -100,6 +101,23 @@ func Delete(ctx *gin.Context) {
 		schemas.MakeErrorResponse(ctx, results.Error, 500)
 		return
 	}
+
+	schemas.MakeResponse(ctx, true, nil)
+}
+
+func Renew(ctx *gin.Context) {
+	var obj models.Certificate
+	results := di.Container.DB.First(&obj, ctx.Param("certificateId"))
+	if results.Error != nil {
+		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+			schemas.MakeErrorResponse(ctx, "Certificate Not Found", 404)
+		} else {
+			schemas.MakeErrorResponse(ctx, results.Error, 500)
+		}
+		return
+	}
+
+	jobs.PushCertificateJob(obj.ID)
 
 	schemas.MakeResponse(ctx, true, nil)
 }

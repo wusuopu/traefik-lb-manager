@@ -22,6 +22,9 @@
             <el-button type="primary" size="small" @click="handleEdit(scope.row)">
               Edit
             </el-button>
+            <el-button type="success" size="small" @click="handleRenew(scope.row.ID)">
+              Renew
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -150,6 +153,16 @@ const handleDelete = async (id: number) => {
   }
 
   await certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+}
+
+const handleRenew = async (id: number) => {
+  try {
+    await certificateStore.renewAsync(workspaceStore.detail?.ID!, id)
+    ElMessage.success('Certificate will try to renew')
+  } catch (error: any) {
+    ElMessage.error(error.response.data.Error)
+    return
+  }
 }
 </script>
 

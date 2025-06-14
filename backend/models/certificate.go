@@ -6,8 +6,9 @@ import (
 
 const (
 	CERTIFICATE_STATUS_INIT = "init"
-	CERTIFICATE_STATUS_PENDING = "pending"
+	CERTIFICATE_STATUS_PENDING = "pending"		// 开始调用 api 获取证书
 	CERTIFICATE_STATUS_COMPLETE = "complete"
+	CERTIFICATE_STATUS_FAILED = "failed"
 )
 
 type Certificate struct {

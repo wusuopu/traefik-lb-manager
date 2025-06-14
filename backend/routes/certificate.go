@@ -14,4 +14,5 @@ func InitCertificate(r *gin.RouterGroup, e *gin.Engine) {
 	r.POST(baseUrl + "/", middlewares.CheckWorkspace, certificate.Create)
 	r.PUT(baseUrl + "/:certificateId", middlewares.CheckWorkspace, certificate.Update)
 	r.DELETE(baseUrl + "/:certificateId", middlewares.CheckWorkspace, certificate.Delete)
+	r.PUT(baseUrl + "/:certificateId/renew", middlewares.CheckWorkspace, certificate.Renew)
 }

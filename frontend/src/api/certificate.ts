@@ -13,4 +13,7 @@ export default {
   delete (workspaceId: number, id: number) {
     return http.delete(`/workspaces/${workspaceId}/certificates/${id}`);
   },
+  renew (workspaceId: number, id: number) {
+    return http.put(`/workspaces/${workspaceId}/certificates/${id}/renew`);
+  },
 }

@@ -2,6 +2,9 @@
   <div>
     Reference: <a href="https://doc.traefik.io/traefik/reference/dynamic-configuration/file/" target="_blank">https://doc.traefik.io/traefik/reference/dynamic-configuration/file/</a>
   </div>
+  <div>
+    HTTP Provide URL: <a :href="httpProvideUrl" target="_blank">{{ httpProvideUrl }}</a>
+  </div>
   <div class="flex gap-1 mb-2">
     <el-button type="primary" @click="insertHTTPChallengeRule">Insert Let's Encrypt Rule</el-button>
     <el-button type="primary" @click="insertTLSCert">Insert TLS Config</el-button>
@@ -26,7 +29,7 @@
 
 <script setup lang="ts">
 import _ from 'lodash';
-import { onMounted, reactive, ref, shallowRef } from 'vue';
+import { computed, onMounted, reactive, ref, shallowRef } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Codemirror } from 'vue-codemirror'
 import { yaml } from '@codemirror/lang-yaml'
@@ -47,6 +50,14 @@ const extensions = [
   yaml(),
   oneDark,
 ]
+
+const httpProvideUrl = computed(() => {
+  let baseUrl = workspaceStore.detail?.ManagerBaseUrl
+  if (_.endsWith(baseUrl, '/')) { baseUrl = _.trimEnd(baseUrl, '/') }
+  baseUrl += location.pathname
+  if (_.endsWith(baseUrl, '/')) { baseUrl = _.trimEnd(baseUrl, '/') }
+  return `${baseUrl}/workspaces/${workspaceStore.detail?.ID!}/traefik.yml?name=${encodeURIComponent(workspaceStore.detail?.Name!)}`
+})
 
 const handleReady = (payload: any) => {
   editor.value = payload.view
@@ -83,10 +94,9 @@ const insertHTTPChallengeRule = () => {
       service: "lets-encrypt-service"\n`).replace(/\n  services:\s*\n/m, `
   services:
     lets-encrypt-service:
-      http:
-        loadBalancer:
-          servers:
-            - url: "${workspaceStore.detail?.ManagerBaseUrl}"\n`)
+      loadBalancer:
+        servers:
+          - url: "${workspaceStore.detail?.ManagerBaseUrl}"\n`)
 }
 
 const insertTLSCert = async () => {

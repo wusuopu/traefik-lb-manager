@@ -3,6 +3,7 @@ package main
 import (
 	"app/config"
 	"app/initialize"
+	"app/jobs"
 	"context"
 	"embed"
 	"log"
@@ -21,6 +22,9 @@ var embededFiles embed.FS
 func main() {
 	e := gin.New()
 	initialize.Init(e, embededFiles)
+
+	jobs.Start()
+	defer jobs.Stop()
 
 	if gin.Mode() == gin.ReleaseMode {
 		// 生产模块下实现 gracefully shutdown

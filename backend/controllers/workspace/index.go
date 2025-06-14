@@ -96,7 +96,6 @@ func Update(ctx *gin.Context) {
 		return
 	}
 
-
 	schemas.MakeResponse(ctx, true, nil)
 }
 
