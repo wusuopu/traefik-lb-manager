@@ -27,7 +27,7 @@
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">
     <template #header>
-      <h4 v-if="state.form.action === 'update'">Update workspace #{{ state.form.data.id }}</h4>
+      <h4 v-if="state.form.action === 'update'">Update workspace #{{ state.form.data.ID }}</h4>
       <h4 v-else>Create workspace</h4>
     </template>
 
