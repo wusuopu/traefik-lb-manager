@@ -177,14 +177,14 @@ func (m *AcmeCertManager) Register() (error) {
 
 	// 账号信息保存到数据库
 	var settings models.SystemSetting
-	results := di.Container.DB.Where("name = ?", system_setting_account_key).First(&settings)
+	di.Container.DB.Where("name = ?", system_setting_account_key).First(&settings)
 
 	settings.Name = system_setting_account_key
 	settings.Value, _ = json.Marshal(gconv.MapDeep(m.user))
 	if settings.ID > 0 {
-		results.Save(&settings)
+		di.Container.DB.Save(&settings)
 	} else {
-		results.Create(&settings)
+		di.Container.DB.Create(&settings)
 	}
 	
   return nil
