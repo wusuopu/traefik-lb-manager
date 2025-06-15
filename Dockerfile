@@ -11,7 +11,7 @@ RUN cd /app && yarn run build-only
 
 
 # Stage 2 - backend
-FROM golang:1.24.2-alpine
+FROM golang:1.24.2-alpine as backend
 
 ENV GOPROXY=https://goproxy.cn,direct \
     GO111MODULE=auto
