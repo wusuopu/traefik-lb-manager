@@ -22,6 +22,9 @@ COPY ./backend/go.mod ./backend/go.sum /app/
 
 RUN go mod download
 
+COPY ./backend/ /app
+RUN rm -rf assets
+
 COPY --from=frontend /app/dist /app/assets
 
 RUN go build -ldflags "-s -w" -o dist/goose cmd/goose.go && \
