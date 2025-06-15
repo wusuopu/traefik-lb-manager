@@ -8,5 +8,5 @@ import (
 )
 
 func InitAcme(e *gin.Engine) {
-	e.GET(config.Config.Server.SSLChallengeBaseUrl + "/.well-known/acme-challenge/:token", acme.TokenVerify)
+	e.GET(config.Config.SSL.ChallengeBaseUrl + "/.well-known/acme-challenge/:token", acme.TokenVerify)
 }

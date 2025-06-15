@@ -35,5 +35,8 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         },
       },
     },
+    build: {
+      assetsDir: 'statics/assets'
+    }
   };
 }

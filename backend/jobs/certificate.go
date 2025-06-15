@@ -1,9 +1,12 @@
 package jobs
 
 import (
+	"app/di"
+	"app/models"
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/v2/container/gqueue"
 )
 
@@ -14,7 +17,26 @@ func startCertificateInterval(t *time.Ticker) {
 	for {
 		select {
 		case now := <-t.C:
-			fmt.Printf("[%s] start check certificate\n", now.String())
+			di.Container.Logger.Info("start check certificate")
+
+			var certificates []models.Certificate
+			endTime := now.Add(time.Hour * 24 * 5)		// 续签还剩5天的证书
+			results := di.Container.DB.
+				Where("created_at < ?", now.Add(time.Hour * 2)).		// 只处理两小时前创建的数据
+				Where("enable = ?", 1).
+				Where("expired_at < ? OR expired_at is NULL", endTime).
+				Limit(50).
+				Find(&certificates)
+
+			if results.Error != nil {
+				continue
+			}
+
+			for _, v := range certificates {
+				if certQueue.Len() < 600 {
+					certQueue.Push(v.ID)
+				}
+			}
 		}
 	}
   
@@ -24,14 +46,29 @@ func startCertificateQueueCheck() {
 	for {
 		select {
 		case item := <-certQueue.C:
-			fmt.Printf("[%s] start renew certificate: %d %d\n", time.Now().String(), item, certQueue.Len())
-			if item == 2 {
+			di.Container.Logger.Info(fmt.Sprintf("start renew certificate: %d %d\n", item, certQueue.Len()))
+			var cert models.Certificate
+			di.Container.DB.Where("id = ?", item).Find(&cert)
+			if cert.ID == 0 {
+				continue
+			}
+			if !cert.Enable {
+				continue
+			}
+			if cert.Status == models.CERTIFICATE_STATUS_COMPLETE && cert.ExpiredAt.After(time.Now().Add(time.Hour * 24 * 5)) {
+				// 证书还有5天有效，不需要续签
 				continue
 			}
 
-			fmt.Println("wait 3 seconds....")
+			if gin.Mode() == gin.ReleaseMode {
+				// 生产环境才需要签发证书
+				di.Service.CertificateService.Obtain(&cert)
+			} else {
+				di.Container.Logger.Debug("mock obtain certcrypto")
+			}
+
 			// 控制 letsencrypt api 请求频率
-			time.Sleep(time.Second * 3)
+			time.Sleep(time.Second * 10)
 		}
 	}
 }

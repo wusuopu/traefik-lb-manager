@@ -18,6 +18,7 @@ type Certificate struct {
 	Cert				string						`gorm:"type:text;"`
 	Key					string						`gorm:"type:text;"`
 	ExpiredAt 	time.Time
+	EffectiveAt time.Time
 	Status			string						`gorm:"type:varchar(20);default:init;"`
 	Enable			bool
 	WorkspaceID int

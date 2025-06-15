@@ -10,8 +10,8 @@ import (
 var ticker *time.Ticker = nil
 func Start() {
 	if ticker == nil {
-		// 开发环境 5秒 检查一次
-		duration := time.Second * 5
+		// 开发环境 60秒 检查一次
+		duration := time.Second * 60
 		if gin.Mode() == gin.ReleaseMode {
 			// 生产环境 2小时 检查一次
 			duration = time.Hour * 2

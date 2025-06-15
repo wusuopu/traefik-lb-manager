@@ -16,10 +16,10 @@ import (
 func InitRoutes(e *gin.Engine, embededFiles embed.FS) {
 	// 静态文件
 	if config.DEBUG {
-		e.Static("/statics", "./assets/statics")
+		e.Static(config.Config.Server.BaseUrl + "/statics", "./assets/statics")
 		e.LoadHTMLFiles("./assets/index.html")
 	} else {
-		e.GET("/statics/*filepath", func(ctx *gin.Context) {
+		e.GET(config.Config.Server.BaseUrl + "/statics/*filepath", func(ctx *gin.Context) {
 			ctx.FileFromFS("assets/statics/" + ctx.Param("filepath"), http.FS(embededFiles))
 		})
 

@@ -6,6 +6,7 @@ import (
 	"app/models"
 	"app/schemas"
 	"errors"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/v2/text/gstr"
@@ -116,8 +117,9 @@ func Renew(ctx *gin.Context) {
 		}
 		return
 	}
-
-	jobs.PushCertificateJob(obj.ID)
+	if obj.Enable && !(obj.Status == models.CERTIFICATE_STATUS_COMPLETE && obj.ExpiredAt.After(time.Now().Add(time.Hour * 24 * 5))) {
+		jobs.PushCertificateJob(obj.ID)
+	}
 
 	schemas.MakeResponse(ctx, true, nil)
 }
