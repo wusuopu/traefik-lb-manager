@@ -90,6 +90,8 @@ const insertHTTPChallengeRule = () => {
   code.value = content.replace(/\n  routers:\s*\n/m, `
   routers:
     lets-encrypt-router:
+      entryPoints:
+        - "web"
       rule: "PathPrefix(\`/.well-known/\`)"
       service: "lets-encrypt-service"\n`).replace(/\n  services:\s*\n/m, `
   services:
@@ -112,7 +114,8 @@ const insertTLSCert = async () => {
   let content = code.value
   const certificates = _.reduce(certificateStore.certificates, (ret, item) => {
     if (item.Enable) {
-      ret.push(`    - certFile: /etc/traefik/ssl/${item.Domain}.crt\n      keyFile: /etc/traefik/ssl/${item.Domain}.key`)
+      const name = `${item.Domain}__${item.ID}`
+      ret.push(`    - certFile: /etc/traefik/ssl/${name}.crt\n      keyFile: /etc/traefik/ssl/${name}.key`)
     }
     return ret
   }, [] as string[])

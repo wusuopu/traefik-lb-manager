@@ -125,6 +125,11 @@ const handleEdit = (row: Certificate) => {
 const handleSubmit = async () => {
   await formRef.value!.validate()
   const payload = {...state.form.data}
+  try {
+    const u = new URL(payload.Domain)
+    payload.Domain = u.hostname
+  } catch (error) {
+  }
 
   try {
     state.form.loading = true

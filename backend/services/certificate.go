@@ -9,7 +9,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
-	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -19,10 +18,7 @@ import (
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/gogf/gf/v2/util/gconv"
 )
-
-const system_setting_account_key = "acme_account"
 
 type AcmeUser struct {
 	Email        string
@@ -38,30 +34,26 @@ func (u *AcmeUser) GetRegistration() *registration.Resource {
 func (u *AcmeUser) GetPrivateKey() crypto.PrivateKey {
 	return u.Key
 }
+var _globalAcmeUser *AcmeUser
 
 func NewAcmeUser(email string) (*AcmeUser, error) {
+	if _globalAcmeUser != nil && _globalAcmeUser.Email == email {
+		return _globalAcmeUser, nil
+	}
+
   user := &AcmeUser{}
 	var err error = nil
 
-	// 从数据库中读取账号信息
-	var settings models.SystemSetting
-	results := di.Container.DB.Where("name = ?", system_setting_account_key).First(&settings)
-	if results.Error == nil {
-		data := gconv.MapDeep(settings.Value)
-		if data != nil {
-			gconv.Struct(data, &user)
-		}
+	// 创建新账号
+	user.Email = email
+	user.Key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		di.Container.Logger.Error(fmt.Sprintf("generate User PrivateKey failed: %s", err))
+		return nil, err
 	}
 
-	// 创建新账号
-	if user.Email == "" || user.Key == "" {
-		user.Email = email
-		user.Key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		if err != nil {
-			di.Container.Logger.Error(fmt.Sprintf("generate User PrivateKey failed: %s", err))
-			return nil, err
-		}
-	}
+	// 全局 User
+	_globalAcmeUser = user
 
 	return user, nil
 }
@@ -168,26 +160,14 @@ func (m *AcmeCertManager) Register() (error) {
 		reg, err = m.client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 	}
 
-  if err != nil {
-    di.Container.Logger.Error(fmt.Sprintf("register acme user failed: %s", err))
-    return err
-  }
-
-  m.user.Registration = reg
-
-	// 账号信息保存到数据库
-	var settings models.SystemSetting
-	di.Container.DB.Where("name = ?", system_setting_account_key).First(&settings)
-
-	settings.Name = system_setting_account_key
-	settings.Value, _ = json.Marshal(gconv.MapDeep(m.user))
-	if settings.ID > 0 {
-		di.Container.DB.Save(&settings)
-	} else {
-		di.Container.DB.Create(&settings)
+	if err != nil {
+		di.Container.Logger.Error(fmt.Sprintf("register acme user failed: %s", err))
+		return err
 	}
-	
-  return nil
+
+	m.user.Registration = reg
+
+	return nil
 }
 
 func (m *AcmeCertManager) ObtainCertificate(cert *models.Certificate) error {
