@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import yaml from 'js-yaml';
 import API from '@/api/workspace';
 
 export const useWorkspaceStore = defineStore('workspaces', {
@@ -29,8 +30,9 @@ export const useWorkspaceStore = defineStore('workspaces', {
     async generateTraefikConfigAsync (id: number) {
       await API.generateTraefikConfigAsync(id)
     },
-    async updateTraefikConfigAsync (id: number, config: string) {
-      await API.updateTraefikConfigAsync(id, config)
+    async updateTraefikConfigAsync (id: number, yamlConfig: string) {
+      const jsonConfig = JSON.stringify(yaml.load(yamlConfig))
+      await API.updateTraefikConfigAsync(id, yamlConfig, jsonConfig)
     },
     setCurrentWorkspace (workspace: Workspace|null) {
       this.currentWorkspace = workspace;

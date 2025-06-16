@@ -18,6 +18,7 @@ func InitWorkspace(r *gin.RouterGroup, e *gin.Engine) {
 	r.POST("/:id/traefik.yml", workspace.GenerateTraefikConfig)
 	r.PUT("/:id/traefik.yml", workspace.UpdateTraefikConfig)
 
-	e.GET(config.Config.Server.BaseUrl + "/workspaces/:id/traefik.yml", workspace.ShowTraefikConfig)
+	e.GET(config.Config.Server.BaseUrl + "/workspaces/:id/traefik.:format", workspace.ShowTraefikConfig)
 	e.GET(config.Config.Server.BaseUrl + "/workspaces/:id/version", workspace.ShowConfigVersion)
+	e.GET(config.Config.Server.BaseUrl + "/workspaces/:id/certs.json", workspace.FetchAllCertificates)
 }

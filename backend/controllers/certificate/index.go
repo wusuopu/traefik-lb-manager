@@ -19,7 +19,10 @@ func Index(ctx *gin.Context) {
 	// don't return password field
 	var data []models.Certificate
 
-	di.Container.DB.Select("id", "name", "domain", "status", "enable", "workspace_id", "expired_at", "created_at", "updated_at").Find(&data)
+	di.Container.DB.
+		Select("id", "name", "domain", "status", "enable", "workspace_id", "expired_at", "created_at", "updated_at").
+		Where("workspace_id = ?", ctx.Param("id")).
+		Find(&data)
 
 	schemas.MakeResponse(ctx, data, nil)
 }

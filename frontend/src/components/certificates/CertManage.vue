@@ -1,6 +1,7 @@
 <template>
   <div class="flex mb-3 section-box">
     <el-button type="primary" @click="handleAddCert">Add Cert</el-button>
+    <el-button type="success" @click="handleFetchList">Refresh</el-button>
   </div>
 
   <div class="section-box-dark mb-3">
@@ -96,9 +97,12 @@ const state = reactive({
 })
 
 onMounted(async () => {
-  await certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  await handleFetchList()
 })
 
+const handleFetchList = () => {
+  return certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+}
 const handleAddCert = () => {
   state.form.action = 'create'
   state.form.data = {
@@ -141,7 +145,7 @@ const handleSubmit = async () => {
 
   state.form.showDrawer = false
 
-  await certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  await handleFetchList()
 }
 const handleDelete = async (id: number) => {
   try {
@@ -152,7 +156,7 @@ const handleDelete = async (id: number) => {
     return
   }
 
-  await certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  await handleFetchList()
 }
 
 const handleRenew = async (id: number) => {

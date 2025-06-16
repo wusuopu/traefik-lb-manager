@@ -20,5 +20,6 @@ type Workspace struct {
 	ApiKey					string						`gorm:"type:varchar(200);"`
 	ApiSecret				string						`gorm:"type:varchar(200);"`
 	Entrypoints			datatypes.JSON		`gorm:"type:json;"`		// 该实例可用的 entrypoints
-	TraefikConfig		string						`gorm:"type:text;"`
+	TraefikConfig		string						`gorm:"type:text;"`		// yaml 配置
+	TraefikJsonConfig		string				`gorm:"type:text;"`		// json 配置
 }

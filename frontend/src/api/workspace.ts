@@ -19,7 +19,7 @@ export default {
   generateTraefikConfigAsync (id: number) {
     return http.post(`/workspaces/${id}/traefik.yml`);
   },
-  updateTraefikConfigAsync (id: number, config: string) {
-    return http.put(`/workspaces/${id}/traefik.yml`, {traefik_config: config});
+  updateTraefikConfigAsync (id: number, yamlConfig: string, jsonConfig: string) {
+    return http.put(`/workspaces/${id}/traefik.yml`, {traefik_config: yamlConfig, traefik_json_config: jsonConfig});
   },
 }
