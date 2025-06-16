@@ -1,16 +1,19 @@
 <template>
   <div class="flex mb-3 section-box">
-    <el-button type="primary" @click="handleAdd">Add cert</el-button>
+    <el-button type="primary" @click="handleAdd">Add service</el-button>
     <el-button type="success" @click="handleFetchList">Refresh</el-button>
   </div>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="certificateStore.certificates" style="width: 100%">
+    <el-table :data="serviceStore.services" style="width: 100%">
         <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="Domain" label="Domain" width="250" />
-        <el-table-column prop="Status" label="Status" width="150" />
-        <el-table-column prop="Enable" label="Enable" width="80" />
-        <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
+        <el-table-column prop="LBServers" label="LBServers" width="350">
+          <template #default="scope">
+            <p v-for="(item, index) in scope.row.LBServers" :key="index">
+              url: {{ item.Url }} <br />( PreservePath: {{ item.PreservePath }} | Weight: {{ item.Weight }} )
+            </p>
+          </template>
+        </el-table-column>
         <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column fixed="right" label="Operations" min-width="120">
@@ -23,9 +26,6 @@
             <el-button type="primary" size="small" @click="handleEdit(scope.row)">
               Edit
             </el-button>
-            <el-button type="success" size="small" @click="handleRenew(scope.row.ID)">
-              Renew
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -33,26 +33,12 @@
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">
     <template #header>
-      <h4 v-if="state.form.action === 'update'">Update certificate #{{ state.form.data.ID }}</h4>
-      <h4 v-else>Create certificate</h4>
+      <h4 v-if="state.form.action === 'update'">Update service #{{ state.form.data.ID }}</h4>
+      <h4 v-else>Create service</h4>
     </template>
 
     <template #default>
-        <div>
-          <el-form ref="formRef" :model="state.form.data" :rules="state.form.rules" label-position="top">
-            <el-form-item label="Name" prop="Name">
-              <el-input v-model="state.form.data.Name" placeholder="Name" />
-            </el-form-item>
-
-            <el-form-item label="Domain" prop="Domain" required>
-              <el-input v-model="state.form.data.Domain" placeholder="www.example.com" :disabled="state.form.action === 'update'" />
-            </el-form-item>
-
-            <el-form-item label="Enable" prop="Enable" required>
-              <el-switch v-model="state.form.data.Enable" />
-            </el-form-item>
-          </el-form>
-        </div>
+      <ServiceForm ref="formRef" :value="state.form.data" :action="state.form.action" />
     </template>
 
     <template #footer>
@@ -67,15 +53,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, shallowRef } from 'vue';
+import _ from 'lodash';
+import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, type FormInstance } from 'element-plus';
 import { useWorkspaceStore } from '@/stores/workspace';
-import { useCertificateStore } from '@/stores/certificate';
+import { useServiceStore } from '@/stores/services';
 import format from '@/lib/format';
+import ServiceForm from './ServiceForm.vue';
+
 
 const workspaceStore = useWorkspaceStore()
-const certificateStore = useCertificateStore()
-const formRef = ref<FormInstance>()
+const serviceStore = useServiceStore()
+const formRef = ref<typeof ServiceForm>()
 
 const state = reactive({
   loading: false,
@@ -84,14 +73,8 @@ const state = reactive({
     loading: false,
     data: {
       Name: '',
-      Domain: '',
-      Enable: true,
-    } as Certificate,
-    rules: {
-      Name: [
-        { required: true, message: 'Name is required' },
-      ],
-    },
+      LBServers: [],
+    } as Service,
     action: '',   // create or update
   },
 })
@@ -101,22 +84,39 @@ onMounted(async () => {
 })
 
 const handleFetchList = () => {
-  return certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  return serviceStore.fetchIndexAsync(workspaceStore.detail?.ID!)
 }
+
 const handleAdd = () => {
   state.form.action = 'create'
   state.form.data = {
     Name: '',
-    Domain: '',
-    Enable: true,
+    LBServers: [{Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: ''}],
   }
 
   formRef.value?.resetFields()
   state.form.showDrawer = true
 }
-const handleEdit = (row: Certificate) => {
+const handleEdit = (row: Service) => {
   state.form.action = 'update'
   state.form.data = {...row}
+  if (_.isEmpty(state.form.data.LBServers) || !_.isArray(state.form.data.LBServers)) {
+    state.form.data.LBServers = [{Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: ''}]
+  }
+  if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
+    // 选择内部服务
+    _.each(state.form.data.LBServers, (item) => {
+      if (!item.Url) { return }
+
+      try {
+        const u = new URL(item.Url)
+        item.HostName = u.hostname
+        item.Port = u.port
+        item.PathName = u.pathname
+      } catch (error) {
+      }
+    })
+  }
 
   formRef.value?.resetFields()
   state.form.showDrawer = true
@@ -125,21 +125,19 @@ const handleEdit = (row: Certificate) => {
 const handleSubmit = async () => {
   await formRef.value!.validate()
   const payload = {...state.form.data}
-  try {
-    const u = new URL(payload.Domain)
-    payload.Domain = u.hostname
-  } catch (error) {
+
+  if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
   }
 
   try {
     state.form.loading = true
 
     if (state.form.action === 'create') {
-      await certificateStore.createAsync(workspaceStore.detail?.ID!, payload)
-      ElMessage.success('Certificate has created')
+      await serviceStore.createAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Service has created')
     } else {
-      await certificateStore.updateAsync(workspaceStore.detail?.ID!, payload)
-      ElMessage.success('Certificate has changed')
+      await serviceStore.updateAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Service has changed')
     }
   } catch (error: any) {
     ElMessage.error(error.response.data.Error)
@@ -152,10 +150,11 @@ const handleSubmit = async () => {
 
   await handleFetchList()
 }
+
 const handleDelete = async (id: number) => {
   try {
-    await certificateStore.deleteAsync(workspaceStore.detail?.ID!, id)
-    ElMessage.success('Certificate has deleted')
+    await serviceStore.deleteAsync(workspaceStore.detail?.ID!, id)
+    ElMessage.success('Service has deleted')
   } catch (error: any) {
     ElMessage.error(error.response.data.Error)
     return
@@ -164,15 +163,6 @@ const handleDelete = async (id: number) => {
   await handleFetchList()
 }
 
-const handleRenew = async (id: number) => {
-  try {
-    await certificateStore.renewAsync(workspaceStore.detail?.ID!, id)
-    ElMessage.success('Certificate will try to renew')
-  } catch (error: any) {
-    ElMessage.error(error.response.data.Error)
-    return
-  }
-}
 </script>
 
 <style lang="scss" scoped>

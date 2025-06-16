@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import RuleView from '../views/RuleView.vue'
+import ServiceView from '../views/ServiceView.vue'
 import CertificateView from '../views/CertificateView.vue'
 
 const router = createRouter({
@@ -15,6 +16,11 @@ const router = createRouter({
       path: '/workspaces/:id/rules',
       name: 'Rules',
       component: RuleView,
+    },
+    {
+      path: '/workspaces/:id/services',
+      name: 'Services',
+      component: ServiceView,
     },
     {
       path: '/workspaces/:id/authentications',

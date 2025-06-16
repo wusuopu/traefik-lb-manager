@@ -56,6 +56,7 @@ const menus = computed(() => {
   const items = [
     {label: 'Home', name: 'Home'},
     {label: 'Rules', name: 'Rules'},
+    {label: 'Services', name: 'Services'},
   ]
   if (workspaceStore.detail && workspaceStore.detail?.Category !== 'custom') {
     items.push({label: 'Authentications', name: 'Authentications'})

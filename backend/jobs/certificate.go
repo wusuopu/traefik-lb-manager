@@ -46,7 +46,7 @@ func startCertificateQueueCheck() {
 	for {
 		select {
 		case item := <-certQueue.C:
-			di.Container.Logger.Info(fmt.Sprintf("start renew certificate: %d %d\n", item, certQueue.Len()))
+			di.Container.Logger.Info(fmt.Sprintf("start renew certificate: %d %d", item, certQueue.Len()))
 			var cert models.Certificate
 			di.Container.DB.Where("id = ?", item).Find(&cert)
 			if cert.ID == 0 {

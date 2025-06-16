@@ -34,7 +34,7 @@ func InitRoutes(e *gin.Engine, embededFiles embed.FS) {
 		}
 		headers = headers + "}"
 
-		return fmt.Sprintf("%s - [%s] %s %s %s %d %s \"%s\" \"%s\"\n",
+		return fmt.Sprintf("%s - [%s] \033[42m\033[30m%s %s\033[0m %s %d %s \"%s\" \"%s\"\n",
 				param.ClientIP,
 				timefmt.Format(param.TimeStamp, "%Y-%m-%d %H:%M:%S %z"),
 				param.Method,

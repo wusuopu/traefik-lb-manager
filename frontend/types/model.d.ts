@@ -13,6 +13,22 @@ interface Workspace {
   TraefikConfig?: string
 }
 
+interface Service {
+  ID?: number
+  WorkspaceID?: number
+  Name: string
+  LBServers?: Array<{
+    Url: string
+    HostName?: string   // 根据 Url 解析而来
+    Port?: string
+    PathName?: string
+    PreservePath?: boolean
+    Weight?: number
+  }>
+  CreatedAt?: string
+  UpdatedAt?: string
+}
+
 
 interface Certificate {
   ID?: number
