@@ -1,0 +1,26 @@
+# https://doc.traefik.io/traefik/reference/static-configuration/file/
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+experimental:
+  localPlugins:
+    lb-manager:
+      moduleName: github.com/wusuopu/lb_manager_provider
+
+entryPoints:
+  web:
+    address: ":80"
+
+  websecure:
+    address: ":443"
+    http:
+      tls: {}
+
+providers:
+  plugin:
+    lb-manager:
+      pollInterval: 5s

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v3.4.0
+    ports:
+      - 80
+    environment:
+      - LB_MANAGER_BASE_ENDPOINT=http://192.168.3.2:8080/workspaces/4
+      - LB_MANAGER_QUERY_PARAMS=name=Demo4
+    volumes:
+      - ./tmp/etc:/etc/traefik
+      - ./plugins:/app/plugins-local/src/github.com/wusuopu
+    working_dir: /app
