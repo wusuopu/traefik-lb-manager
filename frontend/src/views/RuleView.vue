@@ -1,7 +1,7 @@
 <template>
   <Container :key="route.params.id as string">
     <RuleEditor v-if="workspaceStore.detail?.Category === 'custom'" />
-    <RuleManage v-else />
+    <ServerManage v-else />
   </Container>
 </template>
 
@@ -10,7 +10,7 @@ import _ from 'lodash';
 import { useRoute } from 'vue-router';
 import { useWorkspaceStore } from '@/stores/workspace';
 import Container from '@/components/workspaces/Container.vue';
-import RuleManage from '@/components/workspaces/RuleManage.vue';
+import ServerManage from '@/components/workspaces/ServerManage.vue';
 import RuleEditor from '@/components/workspaces/RuleEditor.vue';
 
 const workspaceStore = useWorkspaceStore()

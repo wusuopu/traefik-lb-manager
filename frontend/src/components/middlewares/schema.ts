@@ -39,6 +39,7 @@ function addPropertiesTitle (properties: any) {
   }
 }
 
+// https://json.schemastore.org/traefik-v3-file-provider.json
 const allSchemas: { [key: string]: any} = {
   "addPrefixMiddleware": {
     "type": "object",

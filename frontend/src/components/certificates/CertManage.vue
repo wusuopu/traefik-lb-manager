@@ -6,29 +6,29 @@
 
   <div class="section-box-dark mb-3">
     <el-table :data="certificateStore.certificates" style="width: 100%">
-        <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="Domain" label="Domain" width="250" />
-        <el-table-column prop="Status" label="Status" width="150" />
-        <el-table-column prop="Enable" label="Enable" width="80" />
-        <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column fixed="right" label="Operations" min-width="150">
-          <template #default="scope">
-            <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
-              <template #reference>
-                <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
-              </template>
-            </el-popconfirm>
-            <el-button type="primary" size="small" @click="handleEdit(scope.row)">
-              Edit
-            </el-button>
-            <el-button type="success" size="small" @click="handleRenew(scope.row.ID)">
-              Renew
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-table-column prop="Name" label="Name" width="150" />
+      <el-table-column prop="Domain" label="Domain" width="250" />
+      <el-table-column prop="Status" label="Status" width="150" />
+      <el-table-column prop="Enable" label="Enable" width="80" />
+      <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column fixed="right" label="Operations" min-width="150">
+        <template #default="scope">
+          <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
+            <template #reference>
+              <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
+            </template>
+          </el-popconfirm>
+          <el-button type="primary" size="small" @click="handleEdit(scope.row)">
+            Edit
+          </el-button>
+          <el-button type="success" size="small" @click="handleRenew(scope.row.ID)">
+            Renew
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">

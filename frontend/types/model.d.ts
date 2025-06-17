@@ -13,6 +13,14 @@ interface Workspace {
   TraefikConfig?: string
 }
 
+interface Server {
+  ID?: number
+  WorkspaceID?: number
+  Name: string
+  Host: string[]
+  Enable: boolean
+}
+
 interface Service {
   ID?: number
   WorkspaceID?: number

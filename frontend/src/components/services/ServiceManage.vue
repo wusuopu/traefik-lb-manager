@@ -6,29 +6,29 @@
 
   <div class="section-box-dark mb-3">
     <el-table :data="serviceStore.services" style="width: 100%">
-        <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="LBServers" label="LBServers" min-width="250">
-          <template #default="scope">
-            <p v-for="(item, index) in scope.row.LBServers" :key="index">
-              url: {{ item.Url }} <br />
-            </p>
-          </template>
-        </el-table-column>
-        <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column fixed="right" label="Operations" min-width="150">
-          <template #default="scope">
-            <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
-              <template #reference>
-                <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
-              </template>
-            </el-popconfirm>
-            <el-button type="primary" size="small" @click="handleEdit(scope.row)">
-              Edit
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-table-column prop="Name" label="Name" width="150" />
+      <el-table-column prop="LBServers" label="LBServers" min-width="250">
+        <template #default="scope">
+          <p v-for="(item, index) in scope.row.LBServers" :key="index">
+            url: {{ item.Url }} <br />
+          </p>
+        </template>
+      </el-table-column>
+      <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column fixed="right" label="Operations" min-width="150">
+        <template #default="scope">
+          <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
+            <template #reference>
+              <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
+            </template>
+          </el-popconfirm>
+          <el-button type="primary" size="small" @click="handleEdit(scope.row)">
+            Edit
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">

@@ -15,26 +15,26 @@
 
   <div class="section-box-dark mb-3">
     <el-table :data="middlewareStore.middlewares" style="width: 100%">
-        <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="Category" label="Category" width="250" />
-        <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column fixed="right" label="Operations" min-width="150">
-          <template #default="scope">
-            <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
-              <template #reference>
-                <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
-              </template>
-            </el-popconfirm>
-            <el-button type="primary" size="small" @click="handleEdit(scope.row)">
-              Edit
-            </el-button>
-            <el-button size="small" @click="handleViewOption(scope.row)">
-              View Option
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-table-column prop="Name" label="Name" width="150" />
+      <el-table-column prop="Category" label="Category" width="250" />
+      <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column fixed="right" label="Operations" min-width="150">
+        <template #default="scope">
+          <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
+            <template #reference>
+              <el-button v-loading.fullscreen.lock="state.loading" type="danger" size="small">Delete</el-button>
+            </template>
+          </el-popconfirm>
+          <el-button type="primary" size="small" @click="handleEdit(scope.row)">
+            Edit
+          </el-button>
+          <el-button size="small" @click="handleViewOption(scope.row)">
+            View Option
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">
