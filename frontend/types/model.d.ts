@@ -13,6 +13,16 @@ interface Workspace {
   TraefikConfig?: string
 }
 
+interface Rule {
+  ID?: number
+  Options: any
+  Enable: boolean
+  WorkspaceID?: number
+  ServerID?: number
+  CreatedAt?: string
+  UpdatedAt?: string
+}
+
 interface Server {
   ID?: number
   WorkspaceID?: number

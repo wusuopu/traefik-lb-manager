@@ -26,5 +26,6 @@ func Init(router *gin.RouterGroup, engine *gin.Engine, embededFiles embed.FS) {
 	InitMiddleware(workspaceGroup, engine)
 	InitCertificate(workspaceGroup, engine)
 	InitServer(workspaceGroup, engine)
+	InitRule(workspaceGroup, engine)
 	InitAcme(engine)
 }

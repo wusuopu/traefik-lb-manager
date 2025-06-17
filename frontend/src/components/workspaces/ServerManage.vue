@@ -1,19 +1,21 @@
 <template>
   <TopInfo :workspace="workspaceStore.currentWorkspace">
     <el-button type="primary" @click="handleAdd">Add Server</el-button>
+    <el-button type="success" @click="handleRefresh">Refresh</el-button>
   </TopInfo>
 
   <div class="section-box-dark mb-3">
     <el-table :data="serverStore.servers" style="width: 100%">
       <el-table-column type="expand">
         <template #default="props">
-          <RuleManage :server="props.row" />
+          <RuleManage :server="props.row" @edit="handleEditRule" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="Name" label="Name" width="150" />
-      <el-table-column prop="Enable" label="Enable" width="250" />
-      <el-table-column prop="Host" label="Host" width="250" />
+      <el-table-column prop="ID" label="ID" width="100" />
+      <el-table-column prop="Name" label="Name" min-width="150" />
+      <el-table-column prop="Enable" label="Enable" width="100" />
+      <el-table-column prop="Host" label="Host" min-width="250" />
       <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column fixed="right" label="Operations" min-width="150">
@@ -25,6 +27,9 @@
           </el-popconfirm>
           <el-button type="primary" size="small" @click="handleEdit(scope.row)">
             Edit
+          </el-button>
+          <el-button type="success" size="small" @click="handleAddRule(scope.row)">
+            Add Rule
           </el-button>
         </template>
       </el-table-column>
@@ -56,6 +61,8 @@
       </div>
     </template>
   </el-drawer>
+
+  <RuleForm v-if="state.loaded" ref="ruleFormRef" />
 </template>
 
 <script setup lang="ts">
@@ -63,19 +70,27 @@ import _ from 'lodash';
 import { reactive, onMounted, ref } from 'vue';
 import VueForm from '@lljj/vue3-form-element';
 import { ElMessage } from 'element-plus';
-import { Delete, Plus, Edit } from '@element-plus/icons-vue'
 import { useWorkspaceStore } from '@/stores/workspace';
+import { useMiddlewareStore } from '@/stores/middlewares';
+import { useServiceStore } from '@/stores/services';
 import { useServerStore } from '@/stores/servers';
+import { useRuleStore } from '@/stores/rules';
 import TopInfo from './TopInfo.vue';
 import RuleManage from './RuleManage.vue';
+import RuleForm from './RuleForm.vue';
 import format from '@/lib/format';
 
 const workspaceStore = useWorkspaceStore()
+const middlewareStore = useMiddlewareStore()
+const serviceStore = useServiceStore()
 const serverStore = useServerStore()
+const ruleStore = useRuleStore()
 const formRef = ref()
+const ruleFormRef = ref<typeof RuleForm>()
 
 const state = reactive({
   loading: false,
+  loaded: false,
   form: {
     showDrawer: false,
     loading: false,
@@ -124,11 +139,18 @@ const state = reactive({
 })
 
 onMounted(async () => {
-  await handleFetchList()
+  await handleRefresh()
+  state.loaded = true
 })
 
 const handleFetchList = () => {
   return serverStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+}
+const handleRefresh = async () => {
+  await handleFetchList()
+  await middlewareStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  await serviceStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  await ruleStore.fetchIndexAsync(workspaceStore.detail?.ID!)
 }
 
 
@@ -186,6 +208,13 @@ const handleSubmit = async () => {
   state.form.showDrawer = false
 
   await handleFetchList()
+}
+
+const handleAddRule = (row: Server) => {
+  ruleFormRef.value?.Add(row)
+}
+const handleEditRule = (rule: Rule, server: Server) => {
+  ruleFormRef.value?.Edit(rule, server)
 }
 </script>
 

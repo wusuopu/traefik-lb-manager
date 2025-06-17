@@ -6,13 +6,14 @@
 
   <div class="section-box-dark mb-3">
     <el-table :data="certificateStore.certificates" style="width: 100%">
+      <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" width="150" />
-      <el-table-column prop="Domain" label="Domain" width="250" />
+      <el-table-column prop="Domain" label="Domain" min-width="250" />
       <el-table-column prop="Status" label="Status" width="150" />
       <el-table-column prop="Enable" label="Enable" width="80" />
-      <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
-      <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="ExpiredAt" label="ExpiredAt" width="220" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="CreatedAt" label="CreatedAt" width="220" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="220" :formatter="format.tableDatetimeFormat" />
       <el-table-column fixed="right" label="Operations" min-width="150">
         <template #default="scope">
           <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
