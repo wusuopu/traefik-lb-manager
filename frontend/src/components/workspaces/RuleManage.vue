@@ -1,14 +1,7 @@
 <template>
-  <div v-if="!_.isEmpty(workspaceStore.currentWorkspace)" class="section-box mb-3">
-    <div class="mb-2 break-all">
-      <p class="font-bold text-lg">{{ workspaceStore.currentWorkspace.Name }} ({{ workspaceStore.currentWorkspace.Category }})</p>
-      <p>{{ workspaceStore.currentWorkspace.Description }}</p>
-      <p v-if="workspaceStore.currentWorkspace.ApiBaseUrl">{{ workspaceStore.currentWorkspace.ApiBaseUrl }}</p>
-    </div>
-    <div class="flex items-center">
-      <el-button type="primary" @click="handleAddService">Add Rule</el-button>
-    </div>
-  </div>
+  <TopInfo :workspace="workspaceStore.currentWorkspace">
+    <el-button type="primary" @click="handleAddService">Add Rule</el-button>
+  </TopInfo>
 
   <div class="section-box-dark mb-3">
     <el-collapse accordion>
@@ -140,6 +133,7 @@
 import _ from 'lodash';
 import { reactive, onMounted, ref } from 'vue';
 import { useWorkspaceStore } from '@/stores/workspace';
+import TopInfo from './TopInfo.vue';
 
 const workspaceStore = useWorkspaceStore()
 

@@ -34,6 +34,14 @@ interface ExternalService {
   Stack?: string
 }
 
+interface Middleware {
+  ID?: number
+  Name: string
+  Category: string
+  Options: object
+  CreatedAt?: string
+  UpdatedAt?: string
+}
 
 interface Certificate {
   ID?: number

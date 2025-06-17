@@ -1,8 +1,8 @@
 <template>
-  <div class="flex mb-3 section-box">
+  <TopInfo :workspace="workspaceStore.currentWorkspace">
     <el-button type="primary" @click="handleAdd">Add service</el-button>
     <el-button type="success" @click="handleFetchList">Refresh</el-button>
-  </div>
+  </TopInfo>
 
   <div class="section-box-dark mb-3">
     <el-table :data="serviceStore.services" style="width: 100%">
@@ -60,6 +60,7 @@ import { useWorkspaceStore } from '@/stores/workspace';
 import { useServiceStore } from '@/stores/services';
 import format from '@/lib/format';
 import ServiceForm from './ServiceForm.vue';
+import TopInfo from '../workspaces/TopInfo.vue';
 
 
 const workspaceStore = useWorkspaceStore()

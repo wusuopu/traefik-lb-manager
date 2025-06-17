@@ -1,16 +1,22 @@
 <template>
   <TopInfo :workspace="workspaceStore.currentWorkspace">
-    <el-button type="primary" @click="handleAdd">Add cert</el-button>
+    <el-dropdown :max-height="400" @command="handleAdd">
+      <el-button type="primary">
+        Add middleware<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+      </el-button>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item v-for="(item, index) in allMiddlewares" :key="item" :command="item">{{ item }}</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
     <el-button type="success" @click="handleFetchList">Refresh</el-button>
   </TopInfo>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="certificateStore.certificates" style="width: 100%">
+    <el-table :data="middlewareStore.middlewares" style="width: 100%">
         <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="Domain" label="Domain" width="250" />
-        <el-table-column prop="Status" label="Status" width="150" />
-        <el-table-column prop="Enable" label="Enable" width="80" />
-        <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
+        <el-table-column prop="Category" label="Category" width="250" />
         <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column fixed="right" label="Operations" min-width="150">
@@ -23,8 +29,8 @@
             <el-button type="primary" size="small" @click="handleEdit(scope.row)">
               Edit
             </el-button>
-            <el-button type="success" size="small" @click="handleRenew(scope.row.ID)">
-              Renew
+            <el-button size="small" @click="handleViewOption(scope.row)">
+              View Option
             </el-button>
           </template>
         </el-table-column>
@@ -33,26 +39,32 @@
 
   <el-drawer v-model="state.form.showDrawer" direction="rtl" class="!w-[90%] max-w-[600px]">
     <template #header>
-      <h4 v-if="state.form.action === 'update'">Update certificate #{{ state.form.data.ID }}</h4>
-      <h4 v-else>Create certificate</h4>
+      <h4 v-if="state.form.action === 'update'">Update middleware #{{ state.form.data.ID }}</h4>
+      <h4 v-else>Create middleware</h4>
     </template>
 
     <template #default>
-        <div>
-          <el-form ref="formRef" :model="state.form.data" :rules="state.form.rules" label-position="top">
-            <el-form-item label="Name" prop="Name">
-              <el-input v-model="state.form.data.Name" placeholder="Name" />
-            </el-form-item>
+      <div>
+        <p class="mb-2">
+          <a href="https://doc.traefik.io/traefik/middlewares/overview/" target="_blank">https://doc.traefik.io/traefik/middlewares/overview/</a>
+        </p>
 
-            <el-form-item label="Domain" prop="Domain" required>
-              <el-input v-model="state.form.data.Domain" placeholder="www.example.com" :disabled="state.form.action === 'update'" />
-            </el-form-item>
+        <el-form ref="formRef" :model="state.form.data" :rules="state.form.rules" label-position="top">
+          <el-form-item label="Category" prop="Category" required>
+            <el-input v-model="state.form.data.Category" disabled />
+          </el-form-item>
+          <el-form-item label="Name" prop="Name" required>
+            <el-input v-model="state.form.data.Name" placeholder="Name" />
+          </el-form-item>
+        </el-form>
 
-            <el-form-item label="Enable" prop="Enable" required>
-              <el-switch v-model="state.form.data.Enable" />
-            </el-form-item>
-          </el-form>
-        </div>
+        <OptionForm
+          v-if="state.form.showDrawer"
+          :key="state.form.data.Category"
+          :category="state.form.data.Category"
+          :formData="state.form.data"
+        />
+      </div>
     </template>
 
     <template #footer>
@@ -68,14 +80,17 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, shallowRef } from 'vue';
-import { ElMessage, type FormInstance } from 'element-plus';
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue'
 import { useWorkspaceStore } from '@/stores/workspace';
-import { useCertificateStore } from '@/stores/certificate';
+import { useMiddlewareStore } from '@/stores/middlewares';
 import format from '@/lib/format';
 import TopInfo from '../workspaces/TopInfo.vue';
+import OptionForm from './OptionForm.vue';
+import { allMiddlewares } from './schema';
 
 const workspaceStore = useWorkspaceStore()
-const certificateStore = useCertificateStore()
+const middlewareStore = useMiddlewareStore()
 const formRef = ref<FormInstance>()
 
 const state = reactive({
@@ -85,14 +100,9 @@ const state = reactive({
     loading: false,
     data: {
       Name: '',
-      Domain: '',
-      Enable: true,
-    } as Certificate,
-    rules: {
-      Name: [
-        { required: true, message: 'Name is required' },
-      ],
-    },
+      Category: '',
+    } as Middleware,
+    rules: {},
     action: '',   // create or update
   },
 })
@@ -102,45 +112,51 @@ onMounted(async () => {
 })
 
 const handleFetchList = () => {
-  return certificateStore.fetchIndexAsync(workspaceStore.detail?.ID!)
+  return middlewareStore.fetchIndexAsync(workspaceStore.detail?.ID!)
 }
-const handleAdd = () => {
+const handleAdd = (category: string) => {
   state.form.action = 'create'
   state.form.data = {
     Name: '',
-    Domain: '',
-    Enable: true,
+    Category: category,
+    Options: {},
+  }
+  formRef.value?.resetFields()
+  state.form.showDrawer = true
+}
+
+const handleEdit = (row: Middleware) => {
+  state.form.action = 'update'
+  state.form.data = {
+    ...row,
+    Options: {...row.Options}
   }
 
   formRef.value?.resetFields()
   state.form.showDrawer = true
 }
-const handleEdit = (row: Certificate) => {
-  state.form.action = 'update'
-  state.form.data = {...row}
 
-  formRef.value?.resetFields()
-  state.form.showDrawer = true
+const handleViewOption = (row: Middleware) => {
+  ElMessageBox({
+    title: `Options for #${row.ID}`,
+    message: `<pre style="max-height: 80vh; overflow: auto; width: 100%;">${JSON.stringify(row.Options, null, 2)}</pre>`,
+    dangerouslyUseHTMLString: true,
+  })
 }
 
 const handleSubmit = async () => {
   await formRef.value!.validate()
   const payload = {...state.form.data}
-  try {
-    const u = new URL(payload.Domain)
-    payload.Domain = u.hostname
-  } catch (error) {
-  }
 
   try {
     state.form.loading = true
 
     if (state.form.action === 'create') {
-      await certificateStore.createAsync(workspaceStore.detail?.ID!, payload)
-      ElMessage.success('Certificate has created')
+      await middlewareStore.createAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Middleware has created')
     } else {
-      await certificateStore.updateAsync(workspaceStore.detail?.ID!, payload)
-      ElMessage.success('Certificate has changed')
+      await middlewareStore.updateAsync(workspaceStore.detail?.ID!, payload)
+      ElMessage.success('Middleware has changed')
     }
   } catch (error: any) {
     ElMessage.error(error.response.data.Error)
@@ -155,24 +171,14 @@ const handleSubmit = async () => {
 }
 const handleDelete = async (id: number) => {
   try {
-    await certificateStore.deleteAsync(workspaceStore.detail?.ID!, id)
-    ElMessage.success('Certificate has deleted')
+    await middlewareStore.deleteAsync(workspaceStore.detail?.ID!, id)
+    ElMessage.success('Middleware has deleted')
   } catch (error: any) {
     ElMessage.error(error.response.data.Error)
     return
   }
 
   await handleFetchList()
-}
-
-const handleRenew = async (id: number) => {
-  try {
-    await certificateStore.renewAsync(workspaceStore.detail?.ID!, id)
-    ElMessage.success('Certificate will try to renew')
-  } catch (error: any) {
-    ElMessage.error(error.response.data.Error)
-    return
-  }
 }
 </script>
 

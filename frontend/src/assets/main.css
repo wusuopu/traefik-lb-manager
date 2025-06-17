@@ -20,3 +20,7 @@ body {
   padding: 12px;
   border: 1px solid var(--el-border-color);
 }
+
+.genFromComponent .arrayOrderList{
+  background: var(--el-fill-color-lighter) !important;
+}
