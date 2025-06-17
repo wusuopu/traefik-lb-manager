@@ -13,7 +13,7 @@
         <el-table-column prop="ExpiredAt" label="ExpiredAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column fixed="right" label="Operations" min-width="120">
+        <el-table-column fixed="right" label="Operations" min-width="150">
           <template #default="scope">
             <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
               <template #reference>

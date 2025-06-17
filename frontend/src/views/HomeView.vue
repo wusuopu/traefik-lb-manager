@@ -69,7 +69,7 @@
               <el-form-item label="ApiBaseUrl" prop="ApiBaseUrl" required>
                 <el-input
                   v-model="state.form.data.ApiBaseUrl"
-                  :placeholder="state.form.data.Category === 'rancher_v1' ? 'http://<host>/v2-beta/projects/<env>' : 'http://host:port'"
+                  :placeholder="state.form.data.Category === 'rancher_v1' ? 'http://<host>/v2-beta/projects/<env>' : 'http://host:port/api/endpoints/<envId>'"
                 />
               </el-form-item>
 
@@ -168,6 +168,8 @@ const handleSubmitWorkspace = async () => {
     delete payload.ApiBaseUrl
     delete payload.ApiKey
     delete payload.ApiSecret
+  } else {
+    payload.ApiBaseUrl = _.trimEnd(payload.ApiBaseUrl, '/')
   }
   payload.Entrypoints = _.uniq(payload.Entrypoints)
 

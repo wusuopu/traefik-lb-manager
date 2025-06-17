@@ -4,44 +4,63 @@
       <el-input v-model="value.Name" placeholder="Name" />
     </el-form-item>
 
-    <div
-      v-for="(item, index) in value.LBServers"
-      :key="index"
-      class="border-b-[1px]"
-    >
-      <h3 class="text-[14px]">Server {{ index }}</h3>
-      <el-form-item label="Url" :prop="`LBServers.${index}.Url`" required :rules="[
-        { validator: validateUrl, trigger: 'blur' },
-      ]">
-        <el-input v-model="item.Url" placeholder="Url" />
-      </el-form-item>
+    <template v-if="!showExternalService">
+      <div v-for="(item, index) in value.LBServers" :key="index" class="border-b-[1px]">
+        <h3 class="text-[14px]">LoadBalancer Server {{ index }}</h3>
+        <el-form-item label="Url" :prop="`LBServers.${index}.Url`" required :rules="[
+          { validator: validateUrl, trigger: 'blur' },
+        ]">
+          <el-input v-model="item.Url" placeholder="http://host:port/path" />
+        </el-form-item>
 
-      <div class="flex gap-1 justify-between">
-        <el-form-item label="PreservePath" :prop="`LBServers.${index}.PreservePath`">
-          <el-switch v-model="item.PreservePath" />
-        </el-form-item>
-        <el-form-item label="Weight" :prop="`LBServers.${index}.Weight`" required>
-          <el-input-number v-model="item.Weight" placeholder="Weight" />
-        </el-form-item>
+        <p v-if="index !== 0" class="mt-1">
+          <el-button type="danger" size="small" @click="handleRemove(index)">Remove</el-button>
+        </p>
       </div>
+    </template>
+    <template v-else>
+      <div v-for="(item, index) in value.LBServers" :key="index" class="border-b-[1px]">
+        <h3 class="text-[14px]">LoadBalancer Server {{ index }}</h3>
+        <div class="flex gap-1">
+          <el-form-item label="Target" :prop="`LBServers.${index}.HostName`" required class="flex-1">
+            <el-select v-model="item.HostName" filterable clearable class="w-full">
+              <el-option-group v-for="(options, groupName) in externalServices" :key="groupName" :label="`Stack: ${groupName || '<none>'}`">
+                <el-option v-for="(option, idx) in options" :key="idx" :label="option.HostName" :value="option.HostName" />
+              </el-option-group>
+            </el-select>
+          </el-form-item>
 
-      <p v-if="index !== 0" class="mt-1">
-        <el-button type="danger" size="small" @click="handleRemove(index)">Remove</el-button>
-      </p>
-    </div>
+          <el-form-item label="Port" :prop="`LBServers.${index}.Port`" class="flex-1">
+            <el-input v-model="item.Port" placeholder="80" />
+          </el-form-item>
 
-    <div>
+          <el-form-item label="Path" :prop="`LBServers.${index}.PathName`" class="flex-1">
+            <el-input v-model="item.PathName" placeholder="/" />
+          </el-form-item>
+        </div>
+
+        <p v-if="index !== 0" class="mt-1">
+          <el-button type="danger" size="small" @click="handleRemove(index)">Remove</el-button>
+        </p>
+      </div>
+    </template>
+
+    <div class="flex">
       <el-button type="primary" size="small" @click="handleAdd">Add server</el-button>
+      <el-button v-if="showExternalService" type="success" size="small" @click="fetchExternalSerevices">Refresh Target</el-button>
     </div>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import _ from 'lodash';
+import { reactive, onMounted, computed, ref } from 'vue';
 import { ElMessage, type FormInstance } from 'element-plus';
 import { useWorkspaceStore } from '@/stores/workspace';
+import { useServiceStore } from '@/stores/services';
 
 const workspaceStore = useWorkspaceStore()
+const serviceStore = useServiceStore()
 const formRef = ref<FormInstance>()
 
 const props = defineProps<{
@@ -58,6 +77,13 @@ const state = reactive({
   },
 })
 
+const showExternalService = computed(() => {
+  return _.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)
+})
+const externalServices = computed(() => {
+  return _.groupBy(serviceStore.externals, "Stack")
+})
+
 const validateUrl = (rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('Url is required'))
@@ -68,13 +94,24 @@ const validateUrl = (rule: any, value: string, callback: any) => {
   }
 }
 
+onMounted(async () => {
+  if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
+    await fetchExternalSerevices()
+  }
+})
+
 const handleAdd = () => {
-  props.value.LBServers?.push({ Url: '', PreservePath: true, Weight: 1 })
+  props.value.LBServers?.push({ Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: '' })
 }
 const handleRemove = (index: number) => {
   props.value.LBServers?.splice(index, 1)
 }
 
+const fetchExternalSerevices = async () => {
+  await serviceStore.fetchExternalIndexAsync(workspaceStore.detail?.ID!)
+}
+
+// =============================================
 const validate = async () => {
   await formRef.value!.validate()
 }

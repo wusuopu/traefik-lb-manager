@@ -7,16 +7,16 @@
   <div class="section-box-dark mb-3">
     <el-table :data="serviceStore.services" style="width: 100%">
         <el-table-column prop="Name" label="Name" width="150" />
-        <el-table-column prop="LBServers" label="LBServers" width="350">
+        <el-table-column prop="LBServers" label="LBServers" min-width="250">
           <template #default="scope">
             <p v-for="(item, index) in scope.row.LBServers" :key="index">
-              url: {{ item.Url }} <br />( PreservePath: {{ item.PreservePath }} | Weight: {{ item.Weight }} )
+              url: {{ item.Url }} <br />
             </p>
           </template>
         </el-table-column>
         <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
         <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
-        <el-table-column fixed="right" label="Operations" min-width="120">
+        <el-table-column fixed="right" label="Operations" min-width="150">
           <template #default="scope">
             <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">
               <template #reference>
@@ -126,8 +126,18 @@ const handleSubmit = async () => {
   await formRef.value!.validate()
   const payload = {...state.form.data}
 
-  if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
-  }
+  _.each(state.form.data.LBServers, (item, index) => {
+    item.Weight = state.form.data.LBServers?.length! - index
+    item.PreservePath = true
+
+    if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
+      item.Url = `http://${item.HostName}:${item.Port || '80'}${item.PathName || ''}`
+    }
+    delete item.HostName
+    delete item.Port
+    delete item.PathName
+  })
+
 
   try {
     state.form.loading = true

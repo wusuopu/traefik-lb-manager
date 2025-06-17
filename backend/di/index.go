@@ -14,6 +14,8 @@ type container struct {
 
 type service struct {
 	CertificateService interfaces.ICertificateService
+	ServiceService interfaces.IServiceService
+
 }
 
 var Container = new(container)

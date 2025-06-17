@@ -13,4 +13,7 @@ export default {
   delete (workspaceId: number, id: number) {
     return http.delete(`/workspaces/${workspaceId}/services/${id}`);
   },
+  externalIndex (workspaceId: number) {
+    return http.get(`/workspaces/${workspaceId}/services/external`)
+  }
 }

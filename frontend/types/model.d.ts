@@ -28,6 +28,11 @@ interface Service {
   CreatedAt?: string
   UpdatedAt?: string
 }
+interface ExternalService {
+  HostName: string
+  Name?: string
+  Stack?: string
+}
 
 
 interface Certificate {

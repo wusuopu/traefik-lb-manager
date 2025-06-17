@@ -6,6 +6,7 @@ import (
 	"app/schemas"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/v2/text/gstr"
@@ -27,6 +28,36 @@ func Index(ctx *gin.Context) {
 
 // 获取 rancher / portainer 的服务
 func ExternalIndex(ctx *gin.Context) {
+	var obj models.Workspace
+	results := di.Container.DB.First(&obj, ctx.Param("id"))
+	if results.Error != nil {
+		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+			schemas.MakeErrorResponse(ctx, "Not Found", 404)
+		} else {
+			schemas.MakeErrorResponse(ctx, results.Error, 500)
+		}
+		return
+	}
+
+	if obj.Category == models.WORKSPACE_CATEGORY_RANCHER {
+		data, err := di.Service.ServiceService.FetchRancherServices(&obj)
+		if err != nil {
+			schemas.MakeErrorResponse(ctx, err, 500)
+			return
+		}
+		schemas.MakeResponse(ctx, data, nil)
+		return
+	} else if obj.Category == models.WORKSPACE_CATEGORY_PORTAINER {
+		data, err := di.Service.ServiceService.FetchPortainerServices(&obj)
+		if err != nil {
+			schemas.MakeErrorResponse(ctx, err, 500)
+			return
+		}
+		schemas.MakeResponse(ctx, data, nil)
+		return
+	}
+
+	schemas.MakeErrorResponse(ctx, fmt.Errorf("workspace category is not support"), 400)
 }
 
 func Create(ctx *gin.Context) {
