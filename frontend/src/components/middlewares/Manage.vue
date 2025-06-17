@@ -58,6 +58,10 @@
           </el-form-item>
         </el-form>
 
+        <div v-if="_.includes(['basicAuth', 'digestAuth'], state.form.data.Category)" class="flex justify-end">
+          <el-button type="primary" size="small" @click="handleHashPassword">Hash User's Password</el-button>
+        </div>
+
         <OptionForm
           v-if="state.form.showDrawer"
           :key="state.form.data.Category"
@@ -79,8 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, shallowRef } from 'vue';
+import _ from 'lodash';
+import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus';
+import { Md5 } from 'ts-md5'
+import bcrypt from "bcryptjs";
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useWorkspaceStore } from '@/stores/workspace';
 import { useMiddlewareStore } from '@/stores/middlewares';
@@ -141,6 +148,30 @@ const handleViewOption = (row: Middleware) => {
     title: `Options for #${row.ID}`,
     message: `<pre style="max-height: 80vh; overflow: auto; width: 100%;">${JSON.stringify(row.Options, null, 2)}</pre>`,
     dangerouslyUseHTMLString: true,
+  })
+}
+
+const handleHashPassword = () => {
+  console.log(state.form.data.Options?.users)
+  _.each(state.form.data.Options?.users, (user: string, index: number) => {
+    if (!user) { return }
+
+    if (state.form.data.Category === 'basicAuth') {
+      let [username, password] = user.split(':')
+      if (!username || !password) { return }
+      if (_.startsWith(password, '$apr1$') || password.match(/^\$2\w\$/)) {
+        // 已经加密过了
+        return
+      }
+      const hashedPassword = bcrypt.hashSync(password)
+      state.form.data.Options!.users[index] = `${username}:${hashedPassword}`
+    }
+    if (state.form.data.Category === 'digestAuth') {
+      let [username, realm, password] = user.split(':')
+      if (!username || !realm || !password) { return }
+      const hashedPassword = Md5.hashStr(user)
+      state.form.data.Options!.users[index] = `${username}:${realm}:${hashedPassword}`
+    }
   })
 }
 

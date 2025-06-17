@@ -38,7 +38,7 @@ interface Middleware {
   ID?: number
   Name: string
   Category: string
-  Options: object
+  Options: any
   CreatedAt?: string
   UpdatedAt?: string
 }
