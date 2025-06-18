@@ -78,7 +78,7 @@ const optionsFormat = (row: Rule) => {
 
   const rules = [
     '(' + _.map(props.server.Host, (host: string) => {
-      return `Host: \`${host}\``
+      return `Host(\`${host}\`)`
     }).join(' || ') + ')',
   ]
   if (row.Options?.rule) {

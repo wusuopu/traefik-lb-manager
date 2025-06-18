@@ -25,7 +25,7 @@ func (s *Server) GetHostRules () string {
 	
 	return "(" + strings.Join(
 		lo.Map(hosts.Array(), func(x interface{}, _ int) string {
-			return fmt.Sprintf("Host: `%s`", x.(string))
+			return fmt.Sprintf("Host(`%s`)", x.(string))
 		}),
 		" || ",
 	) + ")"

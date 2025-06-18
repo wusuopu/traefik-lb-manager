@@ -225,7 +225,7 @@ func (w *WorkspaceService) generateService(ws *models.Workspace, ret *gjson.Json
 		return nil
 	}
 
-	ret.Set(fmt.Sprintf("http.services._service__%d", service.ID), data)
+	ret.Set(fmt.Sprintf("http.services._service__%d.loadBalancer", service.ID), data)
   return nil
 }
 
@@ -234,7 +234,7 @@ func (w *WorkspaceService) generateMiddleware(ws *models.Workspace, ret *gjson.J
 	if data == nil {
 		return nil
 	}
-	ret.Set(fmt.Sprintf("http.middlewares._middleware__%d", md.ID), data)
+	ret.Set(fmt.Sprintf("http.middlewares._middleware__%d.%s", md.ID, md.Category), data)
   return nil
 }
 
@@ -243,7 +243,6 @@ func (w *WorkspaceService) generateCertificates(ws *models.Workspace, ret *gjson
 	var certs []models.Certificate
 	results := di.Container.DB.
 		Model(&models.Certificate{}).
-		Select("id", "enable", "domain").
 		Where("workspace_id = ?", ws.ID).
 		Where("enable = ?", 1).
 		Where("status = ?", models.CERTIFICATE_STATUS_COMPLETE).
@@ -255,6 +254,9 @@ func (w *WorkspaceService) generateCertificates(ws *models.Workspace, ret *gjson
 	}
 
 	for i, cert := range certs {
+		if cert.Cert == "" || cert.Key == "" {
+			continue
+		}
 		name := fmt.Sprintf("/etc/traefik/ssl/%s__%d", cert.Domain, cert.ID)
 		key := fmt.Sprintf("tls.certificates.%d.", i)
 		ret.Set(key + "certFile", name + ".crt")

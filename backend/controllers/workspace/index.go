@@ -266,7 +266,7 @@ func FetchAllCertificates(ctx *gin.Context) {
 		Find(&certs)
 
 	for i, item := range certs {
-		certs[i].Name = fmt.Sprintf("%s__%d", item.Name, item.ID)
+		certs[i].Name = fmt.Sprintf("%s__%d", item.Domain, item.ID)
 	}
 
 	schemas.MakeResponse(ctx, certs, nil)
