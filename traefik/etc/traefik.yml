@@ -3,6 +3,9 @@ global:
   checkNewVersion: false
   sendAnonymousUsage: false
 
+core:
+  defaultRuleSyntax: v3
+
 log:
   level: INFO
 

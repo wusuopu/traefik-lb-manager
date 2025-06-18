@@ -10,6 +10,7 @@
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash';
 import { computed, defineProps } from 'vue';
 import VueForm from '@lljj/vue3-form-element';
 import ObjectField from './ObjectField.vue';

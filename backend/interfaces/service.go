@@ -10,3 +10,7 @@ type IServiceService interface	{
 	FetchRancherServices(ws *models.Workspace) (interface{}, error)
 	FetchPortainerServices(ws *models.Workspace) (interface{}, error)
 }
+
+type IWorkspaceService interface {
+	GenerateTraefikConfig(ws *models.Workspace) (error)
+}

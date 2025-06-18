@@ -16,7 +16,11 @@
       </el-table-column>
 
       <el-table-column prop="ID" label="ID" width="100" />
-      <el-table-column prop="Enable" label="Enable" width="100" />
+      <el-table-column prop="Enable" label="Enable" width="100">
+        <template #default="scope">
+          <el-checkbox :model-value="scope.row.Enable" disabled/>
+        </template>
+      </el-table-column>
 
       <el-table-column prop="Options" label="Options" min-width="200">
         <template #default="scope">
@@ -62,9 +66,9 @@ const state = reactive({
 })
 
 const ruleList = computed(() => {
-  return _.sortBy(
+  return _.orderBy(
     _.filter(ruleStore.rules, (item: Rule) => item.ServerID === props.server.ID),
-    ['Options.priority', 'desc'], ["ID", "asc"]
+    ['Options.priority', 'ID'], ["desc", "asc"]
   )
 })
 

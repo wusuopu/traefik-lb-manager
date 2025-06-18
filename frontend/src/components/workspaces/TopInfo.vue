@@ -5,7 +5,10 @@
       <p>{{ workspace.Description }}</p>
       <p v-if="workspace.ApiBaseUrl">{{ workspace.ApiBaseUrl }}</p>
     </div>
-    <div class="flex gap-1 items-center">
+    <div>
+      <slot name="before"></slot>
+    </div>
+    <div class="flex gap-1 flex-wrap items-center">
       <slot></slot>
     </div>
   </div>

@@ -11,7 +11,7 @@
       <el-table-column prop="LBServers" label="LBServers" min-width="250">
         <template #default="scope">
           <p v-for="(item, index) in scope.row.LBServers" :key="index">
-            url: {{ item.Url }} <br />
+            url: {{ item.url }} <br />
           </p>
         </template>
       </el-table-column>
@@ -93,7 +93,7 @@ const handleAdd = () => {
   state.form.action = 'create'
   state.form.data = {
     Name: '',
-    LBServers: [{Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: ''}],
+    LBServers: [{url: '', preservePath: true, weight: 1, HostName: '', Port: '', PathName: ''}],
   }
 
   formRef.value?.resetFields()
@@ -103,15 +103,15 @@ const handleEdit = (row: Service) => {
   state.form.action = 'update'
   state.form.data = {...row}
   if (_.isEmpty(state.form.data.LBServers) || !_.isArray(state.form.data.LBServers)) {
-    state.form.data.LBServers = [{Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: ''}]
+    state.form.data.LBServers = [{url: '', preservePath: true, weight: 1, HostName: '', Port: '', PathName: ''}]
   }
   if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
     // 选择内部服务
     _.each(state.form.data.LBServers, (item) => {
-      if (!item.Url) { return }
+      if (!item.url) { return }
 
       try {
-        const u = new URL(item.Url)
+        const u = new URL(item.url)
         item.HostName = u.hostname
         item.Port = u.port
         item.PathName = u.pathname
@@ -129,11 +129,11 @@ const handleSubmit = async () => {
   const payload = {...state.form.data}
 
   _.each(state.form.data.LBServers, (item, index) => {
-    item.Weight = state.form.data.LBServers?.length! - index
-    item.PreservePath = true
+    item.weight = state.form.data.LBServers?.length! - index
+    item.preservePath = true
 
     if (_.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)) {
-      item.Url = `http://${item.HostName}:${item.Port || '80'}${item.PathName || ''}`
+      item.url = `http://${item.HostName}:${item.Port || '80'}${item.PathName || ''}`
     }
     delete item.HostName
     delete item.Port

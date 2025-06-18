@@ -36,12 +36,12 @@ interface Service {
   WorkspaceID?: number
   Name: string
   LBServers?: Array<{
-    Url: string
+    url: string
     HostName?: string   // 根据 Url 解析而来
     Port?: string
     PathName?: string
-    PreservePath?: boolean
-    Weight?: number
+    preservePath?: boolean
+    weight?: number
   }>
   CreatedAt?: string
   UpdatedAt?: string

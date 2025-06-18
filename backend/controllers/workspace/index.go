@@ -122,7 +122,12 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 
-	// TODO 删除相关的其他资源
+	// 删除相关的其他资源
+	di.Container.DB.Where("workspace_id = ?", obj.ID).Delete(&models.Server{})
+	di.Container.DB.Where("workspace_id = ?", obj.ID).Delete(&models.Service{})
+	di.Container.DB.Where("workspace_id = ?", obj.ID).Delete(&models.Middleware{})
+	di.Container.DB.Where("workspace_id = ?", obj.ID).Delete(&models.Certificate{})
+	di.Container.DB.Where("workspace_id = ?", obj.ID).Delete(&models.Rule{})
 
 	schemas.MakeResponse(ctx, true, nil)
 }
@@ -142,8 +147,14 @@ func GenerateTraefikConfig(ctx *gin.Context) {
 		schemas.MakeErrorResponse(ctx, "Not Found", 400)
 		return
 	}
-	// TODO 生成配置
-	schemas.MakeResponse(ctx, true, nil)
+	
+	err := di.Service.WorkspaceService.GenerateTraefikConfig(&obj)
+	if err != nil {
+		schemas.MakeErrorResponse(ctx, err, 500)
+		return
+	}
+
+	schemas.MakeResponse(ctx, obj, nil)
 }
 
 func UpdateTraefikConfig(ctx *gin.Context) {
@@ -251,6 +262,7 @@ func FetchAllCertificates(ctx *gin.Context) {
 		Select("id", "name", "domain", "cert", "key", "enable", "expired_at", "effective_at", "updated_at").
 		Where("workspace_id = ?", obj.ID).
 		Where("enable = ?", 1).
+		Where("status = ?", models.CERTIFICATE_STATUS_COMPLETE).
 		Find(&certs)
 
 	for i, item := range certs {

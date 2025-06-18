@@ -170,6 +170,10 @@ const handleHashPassword = () => {
     if (state.form.data.Category === 'digestAuth') {
       let [username, realm, password] = user.split(':')
       if (!username || !realm || !password) { return }
+      if (password.match(/^[0-9a-f]{32}$/)) {
+        // 已经加密过了
+        return
+      }
       const hashedPassword = Md5.hashStr(user)
       state.form.data.Options!.users[index] = `${username}:${realm}:${hashedPassword}`
     }

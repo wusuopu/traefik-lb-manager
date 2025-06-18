@@ -1,7 +1,19 @@
 <template>
   <TopInfo :workspace="workspaceStore.currentWorkspace">
+    <template #before>
+      <p>
+        HTTP Provide URL: <a :href="httpProvideUrl" target="_blank">{{ httpProvideUrl }}</a> <br>
+        It needs to generate traefik configuration after change config.
+      </p>
+    </template>
+
     <el-button type="primary" @click="handleAdd">Add Server</el-button>
     <el-button type="success" @click="handleRefresh">Refresh</el-button>
+    <el-popconfirm @confirm="handleGenerate" title="Are you sure to re-generate traefik config from this rule?">
+      <template #reference>
+        <el-button type="warning">Generate Traefik Config</el-button>
+      </template>
+    </el-popconfirm>
   </TopInfo>
 
   <div class="section-box-dark mb-3">
@@ -14,7 +26,11 @@
 
       <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" min-width="150" />
-      <el-table-column prop="Enable" label="Enable" width="100" />
+      <el-table-column prop="Enable" label="Enable" width="100">
+        <template #default="scope">
+          <el-checkbox :model-value="scope.row.Enable" disabled/>
+        </template>
+      </el-table-column>
       <el-table-column prop="Host" label="Host" min-width="250" />
       <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
@@ -67,7 +83,7 @@
 
 <script setup lang="ts">
 import _ from 'lodash';
-import { reactive, onMounted, ref } from 'vue';
+import { reactive, onMounted, ref, computed } from 'vue';
 import VueForm from '@lljj/vue3-form-element';
 import { ElMessage } from 'element-plus';
 import { useWorkspaceStore } from '@/stores/workspace';
@@ -136,6 +152,14 @@ const state = reactive({
       }
     },
   }
+})
+
+const httpProvideUrl = computed(() => {
+  let baseUrl = workspaceStore.detail?.ManagerBaseUrl
+  if (_.endsWith(baseUrl, '/')) { baseUrl = _.trimEnd(baseUrl, '/') }
+  baseUrl += location.pathname
+  if (_.endsWith(baseUrl, '/')) { baseUrl = _.trimEnd(baseUrl, '/') }
+  return `${baseUrl}/workspaces/${workspaceStore.detail?.ID!}/traefik.yml?name=${encodeURIComponent(workspaceStore.detail?.Name!)}`
 })
 
 onMounted(async () => {
@@ -215,6 +239,19 @@ const handleAddRule = (row: Server) => {
 }
 const handleEditRule = (rule: Rule, server: Server) => {
   ruleFormRef.value?.Edit(rule, server)
+}
+
+// ==================
+const handleGenerate = async () => {
+  state.loading = true
+  try {
+    await workspaceStore.generateTraefikConfigAsync(workspaceStore.detail?.ID!)
+    ElMessage.success('traefik.yaml has generated')
+  } catch (error: any) {
+    ElMessage.error(error.message)
+  } finally {
+    state.loading = false
+  }
 }
 </script>
 

@@ -7,10 +7,10 @@
     <template v-if="!showExternalService">
       <div v-for="(item, index) in value.LBServers" :key="index" class="border-b-[1px]">
         <h3 class="text-[14px]">LoadBalancer Server {{ index }}</h3>
-        <el-form-item label="Url" :prop="`LBServers.${index}.Url`" required :rules="[
+        <el-form-item label="Url" :prop="`LBServers.${index}.url`" required :rules="[
           { validator: validateUrl, trigger: 'blur' },
         ]">
-          <el-input v-model="item.Url" placeholder="http://host:port/path" />
+          <el-input v-model="item.url" placeholder="http://host:port/path" />
         </el-form-item>
 
         <p v-if="index !== 0" class="mt-1">
@@ -86,9 +86,9 @@ const externalServices = computed(() => {
 
 const validateUrl = (rule: any, value: string, callback: any) => {
   if (!value) {
-    callback(new Error('Url is required'))
+    callback(new Error('url is required'))
   } else if (!/^https?:\/\/.+$/.test(value)) {
-    callback(new Error('Url must start with http:// or https://'))
+    callback(new Error('url must start with http:// or https://'))
   } else {
     callback()
   }
@@ -101,7 +101,7 @@ onMounted(async () => {
 })
 
 const handleAdd = () => {
-  props.value.LBServers?.push({ Url: '', PreservePath: true, Weight: 1, HostName: '', Port: '', PathName: '' })
+  props.value.LBServers?.push({ url: '', preservePath: true, weight: 1, HostName: '', Port: '', PathName: '' })
 }
 const handleRemove = (index: number) => {
   props.value.LBServers?.splice(index, 1)
