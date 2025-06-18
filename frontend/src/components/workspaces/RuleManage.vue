@@ -15,14 +15,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="ID" label="ID" width="100" />
-      <el-table-column prop="Enable" label="Enable" width="100">
+      <el-table-column prop="ID" label="ID" width="80" />
+      <el-table-column prop="Enable" label="Enable" width="70">
         <template #default="scope">
-          <el-checkbox :model-value="scope.row.Enable" disabled/>
+          <el-switch :model-value="scope.row.Enable" size="small" disabled/>
         </template>
       </el-table-column>
 
-      <el-table-column prop="Options" label="Options" min-width="200">
+      <el-table-column prop="Options.rule" label="Rule" min-width="200">
+        <template #default="scope">
+          <el-text v-if="scope.row.Options?.advanceMode" type="warning">{{ scope.row.Options.rule }}</el-text>
+          <el-text v-else>{{ scope.row.Options.rule }}</el-text>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Options.priority" label="Priority" width="80" />
+      <el-table-column prop="Options" label="Options" min-width="120">
         <template #default="scope">
           <p v-for="(line, index) in optionsFormat(scope.row)" :key="index">
             <span class="font-bold mr-2">{{ line[0] }}:</span>
@@ -30,7 +37,6 @@
           </p>
         </template>
       </el-table-column>
-      <el-table-column prop="Options.priority" label="Priority" min-width="60" />
 
       <el-table-column prop="CreatedAt" label="CreatedAt" width="120" :formatter="format.tableDatetimeFormat" />
       <el-table-column prop="UpdatedAt" label="UpdatedAt" width="120" :formatter="format.tableDatetimeFormat" />
@@ -90,7 +96,7 @@ const optionsFormat = (row: Rule) => {
   }
 
   const content = [
-    ['rule', rules.join(' && ')],
+    // ['rule', rules.join(' && ')],
     ['service', `#${service?.ID} ${service?.Name || ''}` || ''],
   ]
   if (middlewares.length > 0) {

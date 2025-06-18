@@ -22,7 +22,8 @@ export const httpRouterSchema = {
       "type": "integer",
       "description": "To avoid path overlap, routes are sorted, by default, in descending order using rules length. The priority is directly equal to the length of the rule, and so the longest length has the highest priority. A value of 0 for the priority is ignored: priority = 0 means that the default rules length sorting is used.",
       "default": 0,
-      "minimum": 0
+      "minimum": 0,
+      "maximum": 500
     },
     "middlewares": {
       "type": "array",

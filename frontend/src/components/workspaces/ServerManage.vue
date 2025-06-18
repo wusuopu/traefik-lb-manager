@@ -28,7 +28,7 @@
       <el-table-column prop="Name" label="Name" min-width="150" />
       <el-table-column prop="Enable" label="Enable" width="100">
         <template #default="scope">
-          <el-checkbox :model-value="scope.row.Enable" disabled/>
+          <el-switch :model-value="scope.row.Enable" size="small" disabled/>
         </template>
       </el-table-column>
       <el-table-column prop="Host" label="Host" min-width="250" />

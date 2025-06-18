@@ -12,7 +12,7 @@
       <el-table-column prop="Status" label="Status" width="150" />
       <el-table-column prop="Enable" label="Enable" width="100">
         <template #default="scope">
-          <el-checkbox :model-value="scope.row.Enable" disabled/>
+          <el-switch :model-value="scope.row.Enable" size="small" disabled/>
         </template>
       </el-table-column>
       <el-table-column prop="ExpiredAt" label="ExpiredAt" width="180" :formatter="format.tableDatetimeFormat" />
