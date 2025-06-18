@@ -13,6 +13,8 @@ type IConfig struct {
 		Version	string
 		Username string
 		Password string
+		RancherV1AuthUrl string
+		PortainerAuthUrl string
 	}
 	SSL struct {
 		ChallengeBaseUrl string
@@ -40,6 +42,9 @@ func Load() IConfig {
 
 	Config.Server.Username = os.Getenv("APP_BASIC_AUTH_USER")
 	Config.Server.Password = os.Getenv("APP_BASIC_AUTH_PASSWORD")
+
+	Config.Server.RancherV1AuthUrl = strings.TrimSuffix(os.Getenv("APP_RANCHER_V1_AUTH_URL"), "/")
+	Config.Server.PortainerAuthUrl = strings.TrimSuffix(os.Getenv("APP_PORTAINER_AUTH_URL"), "/")
 
 	Config.SSL.ChallengeBaseUrl = strings.TrimSuffix(os.Getenv("APP_SSL_CHALLENGE_BASE_URL"), "/")
 	Config.SSL.Email = os.Getenv("APP_SSL_EMAIL")
