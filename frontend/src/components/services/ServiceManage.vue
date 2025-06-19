@@ -1,7 +1,7 @@
 <template>
   <TopInfo :workspace="workspaceStore.currentWorkspace">
     <el-button type="primary" @click="handleAdd">Add service</el-button>
-    <el-button type="success" @click="handleFetchList">Refresh</el-button>
+    <el-button type="success" @click="handleRefresh">Refresh</el-button>
   </TopInfo>
 
   <div class="section-box-dark mb-3">
@@ -85,6 +85,10 @@ onMounted(async () => {
   await handleFetchList()
 })
 
+const handleRefresh = async () => {
+  await handleFetchList()
+  await serviceStore.fetchExternalIndexAsync(workspaceStore.detail?.ID!)
+}
 const handleFetchList = () => {
   return serviceStore.fetchIndexAsync(workspaceStore.detail?.ID!)
 }

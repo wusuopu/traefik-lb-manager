@@ -24,8 +24,8 @@
         <div class="flex gap-1">
           <el-form-item label="Target" :prop="`LBServers.${index}.HostName`" required class="flex-1">
             <el-select v-model="item.HostName" filterable clearable class="w-full">
-              <el-option-group v-for="(options, groupName) in externalServices" :key="groupName" :label="`Stack: ${groupName || '<none>'}`">
-                <el-option v-for="(option, idx) in options" :key="idx" :label="option.HostName" :value="option.HostName" />
+              <el-option-group v-for="(group, index) in externalServices" :key="index" :label="`Stack: ${group.stackName || '<none>'}`">
+                <el-option v-for="(option, idx) in group.services" :key="idx" :label="option.Label" :value="option.HostName" />
               </el-option-group>
             </el-select>
           </el-form-item>
@@ -81,7 +81,13 @@ const showExternalService = computed(() => {
   return _.includes(['rancher_v1', 'portainer_swarm'], workspaceStore.detail?.Category)
 })
 const externalServices = computed(() => {
-  return _.groupBy(serviceStore.externals, "Stack")
+  const group = _.groupBy(serviceStore.externals, "Stack")
+  return _.map(_.orderBy(_.keys(group)), (stackName: string) => {
+    return {
+      stackName,
+      services: _.orderBy(group[stackName], "Name"),
+    }
+  })
 })
 
 const validateUrl = (rule: any, value: string, callback: any) => {

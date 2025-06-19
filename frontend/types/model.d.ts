@@ -50,6 +50,7 @@ interface ExternalService {
   HostName: string
   Name?: string
   Stack?: string
+  Label?: string
 }
 
 interface Middleware {

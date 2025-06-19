@@ -4,6 +4,7 @@ import (
 	"app/models"
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -64,11 +65,20 @@ func (s *ServiceService) FetchRancherServices(ws *models.Workspace) (interface{}
 		if name == nil {
 			continue
 		}
+		if item["kind"] != "service" {
+			// 有可能不是在 rancher 中创建的服务
+			continue
+		}
+		if item["system"] != nil && item["system"].(bool) {
+			// 过滤掉系统服务
+			continue
+		}
 		stack := stackName[stackId.(string)]
 		serviceList = append(serviceList, map[string]string{
 			"Name":   name.(string),
 			"Stack":  stack,
 			"HostName": fmt.Sprintf("%s.%s", name.(string), stack),
+			"Label": fmt.Sprintf("%s/%s", stack, name.(string)),
 		})
 	}
 
@@ -103,6 +113,7 @@ func (s *ServiceService) FetchPortainerServices(ws *models.Workspace) (interface
 	for _, v := range portainerServices {
 		item := gjson.New(v)
 		name := item.Get("Spec.Name").String()
+		labelNames := []string{}
 
 		labels := item.Get("Spec.Labels")
 		stack := ""
@@ -110,13 +121,17 @@ func (s *ServiceService) FetchPortainerServices(ws *models.Workspace) (interface
 			value := labels.Map()["com.docker.stack.namespace"]
 			if value != nil {
 				stack = value.(string)
+				labelNames = append(labelNames, stack)
 			}
 		}
+
+		labelNames = append(labelNames, name)
 
 		serviceList = append(serviceList, map[string]string{
 			"Name": name,
 			"Stack":  stack,
 			"HostName": name,
+			"Label": strings.Join(labelNames, "/"),
 		})
 	}
 	return serviceList, nil
