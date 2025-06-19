@@ -10,3 +10,6 @@ backend/tmp/
 backend/notes/
 backend/dist/
 backend/.env
+
+docs/
+README.md

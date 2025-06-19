@@ -66,7 +66,7 @@ interface Certificate {
   WorkspaceID?: number
   Name: string
   Domain: string
-  Stauts?: string
+  Status?: string
   Enable: boolean
   ExpiredAt?: string
   CreatedAt?: string

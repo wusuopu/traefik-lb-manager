@@ -9,15 +9,15 @@
       <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" width="150" />
       <el-table-column prop="Domain" label="Domain" min-width="250" />
-      <el-table-column prop="Status" label="Status" width="150" />
+      <el-table-column prop="Status" label="Status" width="100" />
       <el-table-column prop="Enable" label="Enable" width="100">
         <template #default="scope">
           <el-switch :model-value="scope.row.Enable" size="small" disabled/>
         </template>
       </el-table-column>
-      <el-table-column prop="ExpiredAt" label="ExpiredAt" width="180" :formatter="format.tableDatetimeFormat" />
-      <el-table-column prop="CreatedAt" label="CreatedAt" width="180" :formatter="format.tableDatetimeFormat" />
-      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="180" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="ExpiredAt" label="ExpiredAt" width="120" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="CreatedAt" label="CreatedAt" width="120" :formatter="format.tableDatetimeFormat" />
+      <el-table-column prop="UpdatedAt" label="UpdatedAt" width="120" :formatter="format.tableDatetimeFormat" />
       <el-table-column fixed="right" label="Operations" min-width="150">
         <template #default="scope">
           <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">

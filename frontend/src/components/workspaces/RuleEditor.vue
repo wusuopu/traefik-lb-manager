@@ -113,7 +113,7 @@ const insertTLSCert = async () => {
 
   let content = code.value
   const certificates = _.reduce(certificateStore.certificates, (ret, item) => {
-    if (item.Enable) {
+    if (item.Enable && item.Status === 'complete') {
       const name = `${item.Domain}__${item.ID}`
       ret.push(`    - certFile: /etc/traefik/ssl/${name}.crt\n      keyFile: /etc/traefik/ssl/${name}.key`)
     }

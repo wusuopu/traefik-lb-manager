@@ -46,7 +46,7 @@
               <el-input v-model="state.form.data.ManagerBaseUrl" placeholder="http://manager:8080" />
             </el-form-item>
             <el-alert type="info" show-icon :closable="false">
-              <p>This will use to receive request from Let's Encrypt</p>
+              <p>This will use to receive request from Traefik dynamic configuration HTTP provider.</p>
             </el-alert>
 
             <el-form-item label="Category" prop="Category" required>
