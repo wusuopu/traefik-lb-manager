@@ -56,6 +56,7 @@ interface ExternalService {
 interface Middleware {
   ID?: number
   Name: string
+  Description: string
   Category: string
   Options: any
   CreatedAt?: string

@@ -17,6 +17,7 @@
     <el-table :data="middlewareStore.middlewares" style="width: 100%">
       <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" width="150" />
+      <el-table-column prop="Description" label="Description" width="150" />
       <el-table-column prop="Category" label="Category" width="250" />
       <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
@@ -56,6 +57,9 @@
           </el-form-item>
           <el-form-item label="Name" prop="Name" required>
             <el-input v-model="state.form.data.Name" placeholder="Name" />
+          </el-form-item>
+          <el-form-item label="Description" prop="Description" >
+            <el-input v-model="state.form.data.Description" placeholder="Description" type="textarea" />
           </el-form-item>
         </el-form>
 

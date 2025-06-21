@@ -28,7 +28,7 @@ func Index(ctx *gin.Context) {
 func Create(ctx *gin.Context) {
 	body, _ := ctx.Get("rawBody")
 	data := gconv.Map(body)
-	data = lo.PickByKeys(data, []string{"Name", "Category", "Options"})
+	data = lo.PickByKeys(data, []string{"Name", "Description", "Category", "Options"})
 	data["WorkspaceID"] = ctx.Param("id")
 
 	if value, exists := data["Options"]; exists {
@@ -65,7 +65,7 @@ func Update(ctx *gin.Context) {
 
 	body, _ := ctx.Get("rawBody")
 	data := gconv.Map(body)
-	data = lo.PickByKeys(data, []string{"Name", "Options"})
+	data = lo.PickByKeys(data, []string{"Name", "Description", "Options"})
 
 	if value, exists := data["Options"]; exists {
 		data["Options"], _ = json.Marshal(value)
