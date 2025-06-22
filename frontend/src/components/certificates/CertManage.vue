@@ -5,7 +5,7 @@
   </TopInfo>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="certificateStore.certificates" style="width: 100%">
+    <el-table :data="certificateStore.certificates" border style="width: 100%">
       <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" width="150" />
       <el-table-column prop="Domain" label="Domain" min-width="250" />

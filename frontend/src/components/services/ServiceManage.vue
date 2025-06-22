@@ -5,9 +5,9 @@
   </TopInfo>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="serviceStore.services" style="width: 100%">
+    <el-table :data="serviceStore.services" border style="width: 100%">
       <el-table-column prop="ID" label="ID" width="100" />
-      <el-table-column prop="Name" label="Name" width="150" />
+      <el-table-column prop="Name" label="Name" min-width="150" />
       <el-table-column prop="LBServers" label="LBServers" min-width="250">
         <template #default="scope">
           <p v-for="(item, index) in scope.row.LBServers" :key="index">

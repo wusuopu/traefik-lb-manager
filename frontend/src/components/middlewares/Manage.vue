@@ -14,7 +14,7 @@
   </TopInfo>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="middlewareStore.middlewares" style="width: 100%">
+    <el-table :data="middlewareStore.middlewares" border style="width: 100%">
       <el-table-column prop="ID" label="ID" width="100" />
       <el-table-column prop="Name" label="Name" width="150" />
       <el-table-column prop="Description" label="Description" width="150" />

@@ -4,7 +4,7 @@
   </div>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="workspaceStore.workspaces" style="width: 100%">
+    <el-table :data="workspaceStore.workspaces" border style="width: 100%">
         <el-table-column prop="Name" label="Name" width="150">
           <template #default="scope">
             <el-button link type="primary" @click="handleSelectWorkspace(scope.row)">{{ scope.row.Name }}</el-button>

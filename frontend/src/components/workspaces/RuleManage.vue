@@ -1,7 +1,7 @@
 <template>
   <div class="py-1 px-3">
     <div>Rule List for {{ server.Name }}</div>
-    <el-table :data="ruleList" style="width: 100%">
+    <el-table :data="ruleList" border style="width: 100%">
       <el-table-column label="Operations" width="150">
         <template #default="scope">
           <el-popconfirm @confirm="handleDelete(scope.row.ID)" title="Are you sure to delete this record?">

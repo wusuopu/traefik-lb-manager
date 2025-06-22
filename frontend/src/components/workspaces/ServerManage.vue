@@ -17,7 +17,7 @@
   </TopInfo>
 
   <div class="section-box-dark mb-3">
-    <el-table :data="serverStore.servers" style="width: 100%">
+    <el-table :data="serverStore.servers" border style="width: 100%">
       <el-table-column type="expand">
         <template #default="props">
           <RuleManage :server="props.row" @edit="handleEditRule" />
@@ -31,7 +31,11 @@
           <el-switch :model-value="scope.row.Enable" size="small" disabled/>
         </template>
       </el-table-column>
-      <el-table-column prop="Host" label="Host" min-width="250" />
+      <el-table-column prop="Host" label="Host" min-width="250">
+        <template #default="scope">
+          {{ scope.row.Host?.join(" | ") }}
+        </template>
+      </el-table-column>
       <el-table-column prop="CreatedAt" label="CreatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column prop="UpdatedAt" label="UpdatedAt" width="250" :formatter="format.tableDatetimeFormat" />
       <el-table-column fixed="right" label="Operations" min-width="150">
