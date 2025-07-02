@@ -67,12 +67,18 @@
           <el-button type="primary" size="small" @click="handleHashPassword">Hash User's Password</el-button>
         </div>
 
-        <OptionForm
-          v-if="state.form.showDrawer"
-          :key="state.form.data.Category"
-          :category="state.form.data.Category"
-          :formData="state.form.data"
-        />
+        <template v-if="state.form.showDrawer">
+          <JsonEditor
+            v-if="state.form.data.Category === 'plugin'"
+            :formData="state.form.data"
+          />
+          <OptionForm
+            v-else
+            :key="state.form.data.Category"
+            :category="state.form.data.Category"
+            :formData="state.form.data"
+          />
+        </template>
       </div>
     </template>
 
@@ -99,6 +105,7 @@ import { useMiddlewareStore } from '@/stores/middlewares';
 import format from '@/lib/format';
 import TopInfo from '../workspaces/TopInfo.vue';
 import OptionForm from './OptionForm.vue';
+import JsonEditor from './JsonEditor.vue';
 import { allMiddlewares } from './schema';
 
 const workspaceStore = useWorkspaceStore()

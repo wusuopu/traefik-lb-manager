@@ -139,7 +139,7 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 			di.Container.Logger.Error(fmt.Sprintf("Load Rule %d Options error: %s", r.ID, err))
 			return err
 		}
-		baseKeyPath := fmt.Sprintf("http.routers._router__%d", r.ID)
+		baseKeyPath := fmt.Sprintf("http.routers._router__%d_%d", server.ID, r.ID)
 
 		// set services
 		serviceId := options.Get("service").Uint()

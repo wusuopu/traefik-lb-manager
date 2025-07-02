@@ -39,6 +39,43 @@ function addPropertiesTitle (properties: any) {
   }
 }
 
+const ipStrategyDefinition = {
+  "type": "object",
+  "description": "The ipStrategy option defines parameters that set how Traefik will determine the client IP.",
+  "properties": {
+    "depth": {
+      "type": "integer",
+      "description": "The depth option tells Traefik to use the X-Forwarded-For header and take the IP located at the depth position (starting from the right). If depth is greater than the total number of IPs in X-Forwarded-For, then the client IP will be empty. depth is ignored if its value is lesser than or equal to 0."
+    },
+    "excludedIPs": {
+      "type": "array",
+      "description": "excludedIPs tells Traefik to scan the X-Forwarded-For header and pick the first IP not in the list. If depth is specified, excludedIPs is ignored.",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}
+const sourceCriterionDefinition = {
+  "type": "object",
+  "description": "SourceCriterion defines what criterion is used to group requests as originating from a common source. The precedence order is ipStrategy, then requestHeaderName, then requestHost. If none are set, the default is to use the requestHost.",
+  "properties": {
+    "ipStrategy": ipStrategyDefinition,
+    "requestHeaderName": {
+      "type": "string",
+      "description": "Requests having the same value for the given header are grouped as coming from the same source."
+    },
+    "requestHost": {
+      "type": "boolean",
+      "description": "Whether to consider the request host as the source."
+    }
+  },
+  "additionalProperties": false
+}
+
+
+
 // https://json.schemastore.org/traefik-v3-file-provider.json
 const allSchemas: { [key: string]: any} = {
   "addPrefixMiddleware": {
@@ -527,9 +564,7 @@ const allSchemas: { [key: string]: any} = {
           "type": "string"
         }
       },
-      "ipStrategy": {
-        "$ref": "#/definitions/ipStrategy"
-      }
+      "ipStrategy": ipStrategyDefinition,
     },
     "additionalProperties": false
   },
@@ -548,9 +583,7 @@ const allSchemas: { [key: string]: any} = {
         "type": "integer",
         "description": "RejectStatusCode defines the HTTP status code used for refused requests. If not set, the default is 403 (Forbidden)."
       },
-      "ipStrategy": {
-        "$ref": "#/definitions/ipStrategy"
-      }
+      "ipStrategy": ipStrategyDefinition,
     },
     "additionalProperties": false
   },
@@ -558,9 +591,7 @@ const allSchemas: { [key: string]: any} = {
     "type": "object",
     "description": "SourceCriterion defines what criterion is used to group requests as originating from a common source. The precedence order is ipStrategy, then requestHeaderName, then requestHost. If none are set, the default is to use the requestHost.",
     "properties": {
-      "ipStrategy": {
-        "$ref": "#/definitions/ipStrategy"
-      },
+      "ipStrategy": ipStrategyDefinition,
       "requestHeaderName": {
         "type": "string",
         "description": "Requests having the same value for the given header are grouped as coming from the same source."
@@ -580,9 +611,7 @@ const allSchemas: { [key: string]: any} = {
         "type": "integer",
         "description": "The amount option defines the maximum amount of allowed simultaneous in-flight request. The middleware will return an HTTP 429 Too Many Requests if there are already amount requests in progress (based on the same sourceCriterion strategy)."
       },
-      "sourceCriterion": {
-        "$ref": "#/definitions/sourceCriterion"
-      }
+      "sourceCriterion": sourceCriterionDefinition,
     },
     "additionalProperties": false
   },
@@ -722,9 +751,7 @@ const allSchemas: { [key: string]: any} = {
         "description": "burst is the maximum number of requests allowed to go through in the same arbitrarily small period of time.\n\nIt defaults to 1.",
         "default": 1
       },
-      "sourceCriterion": {
-        "$ref": "#/definitions/sourceCriterion"
-      }
+      "sourceCriterion": sourceCriterionDefinition,
     },
     "additionalProperties": false
   },

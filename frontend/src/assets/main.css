@@ -21,6 +21,7 @@ body {
   border: 1px solid var(--el-border-color);
 }
 
-.genFromComponent .arrayOrderList{
+.genFromComponent .arrayOrderList,
+.genFromComponent .appendCombining_box {
   background: var(--el-fill-color-lighter) !important;
 }
