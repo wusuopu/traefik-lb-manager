@@ -1,6 +1,8 @@
 <template>
-  <div class="py-1 px-3">
-    <div>Rule List for {{ server.Name }}</div>
+  <div class="section-box">
+    <div>
+      <el-text type="primary">Rule List for {{ server.Name }}</el-text>
+    </div>
     <el-table :data="ruleList" border style="width: 100%">
       <el-table-column label="Operations" width="150">
         <template #default="scope">

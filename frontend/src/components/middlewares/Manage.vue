@@ -130,6 +130,7 @@ const handleAdd = (category: string) => {
   state.form.action = 'create'
   state.form.data = {
     Name: '',
+    Description: '',
     Category: category,
     Options: {},
   }

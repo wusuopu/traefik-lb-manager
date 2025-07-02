@@ -27,6 +27,12 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       cors: true,
       strictPort: true,
       proxy: {
+        "/workspaces": {
+          target: viteEnv.VITE_BASE_API || "http://127.0.0.1:8080",
+          ws: true,
+          /** 是否允许跨域 */
+          changeOrigin: true,
+        },
         "/api": {
           target: viteEnv.VITE_BASE_API || "http://127.0.0.1:8080",
           ws: true,

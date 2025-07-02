@@ -84,6 +84,13 @@ const schema = computed(() => {
 })
 const uiSchema = computed(() => {
   const data = {
+    service: {
+      'ui:options': {
+        attrs: {
+          filterable: true,
+        },
+      },
+    },
   }
   return data
 })
@@ -122,7 +129,9 @@ const Add = (server: Server) => {
 
   state.form.data = {
     Enable: true,
-    Options: {},
+    Options: {
+      priority: 1,
+    },
   }
 
   formRef.value?.$$uiFormRef?.resetFields()

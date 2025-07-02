@@ -190,7 +190,7 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 		if serverRule == "" {
 			ret.Set(fmt.Sprintf("%s.rule", baseKeyPath), routeRule)
 		} else {
-			ret.Set(fmt.Sprintf("%s.rule", baseKeyPath), fmt.Sprintf("%s && %s", serverRule, routeRule))
+			ret.Set(fmt.Sprintf("%s.rule", baseKeyPath), fmt.Sprintf("%s && (%s)", serverRule, routeRule))
 		}
 
 	}

@@ -176,6 +176,7 @@ const handleFetchList = () => {
 }
 const handleRefresh = async () => {
   await handleFetchList()
+  await workspaceStore.fetchShowAsync(workspaceStore.detail?.ID!)
   await middlewareStore.fetchIndexAsync(workspaceStore.detail?.ID!)
   await serviceStore.fetchIndexAsync(workspaceStore.detail?.ID!)
   await ruleStore.fetchIndexAsync(workspaceStore.detail?.ID!)
