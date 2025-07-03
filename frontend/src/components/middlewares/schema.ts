@@ -155,7 +155,7 @@ const allSchemas: { [key: string]: any} = {
         "type": "array",
         "minItems": 1,
         "items": {
-          "type": "string"
+          "type": "integer",
         }
       }
     },

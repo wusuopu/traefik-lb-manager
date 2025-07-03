@@ -151,7 +151,7 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 			continue
 		}
 		ret.Set(fmt.Sprintf("%s.service", baseKeyPath), fmt.Sprintf("_service__%d", serviceId))
-		serviceIdsSet.Add(serviceId)
+		serviceIdsSet.AddIfNotExist(serviceId)
 
 		// set entryPoints
 		entryPoints := options.Get("entryPoints").Array()
@@ -161,7 +161,8 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 
 		// set middlewares
 		mdIds := options.Get("middlewares").Array()
-		for i, mdId := range mdIds {
+		mdIndex := 0
+		for _, mdId := range mdIds {
 			id := gconv.Uint(mdId)
 			_, ok := lo.Find(mds, func(m models.Middleware) bool {
 				return m.ID == id
@@ -170,8 +171,9 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 				di.Container.Logger.Error(fmt.Sprintf("Rule %d middleware(%d) is not exist", r.ID, id))
 				continue
 			}
-			ret.Set(fmt.Sprintf("%s.middlewares.%d", baseKeyPath, i), fmt.Sprintf("_middleware__%d", id))
-			middlewareIdsSet.Add(id)
+			ret.Set(fmt.Sprintf("%s.middlewares.%d", baseKeyPath, mdIndex), fmt.Sprintf("_middleware__%d", id))
+			middlewareIdsSet.AddIfNotExist(id)
+			mdIndex++
 		}
 
 		// set priority
@@ -206,7 +208,12 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 		w.generateService(ws, ret, &service)
 	}
 
-	for _, v := range middlewareIdsSet.Slice() {
+	for {
+		if middlewareIdsSet.Size() == 0 {
+			break
+		}
+
+		v := middlewareIdsSet.Pop()
 		md, ok := lo.Find(mds, func(m models.Middleware) bool {
 			return m.ID == v
 		})
@@ -214,7 +221,7 @@ func (w *WorkspaceService) generateRules(ws *models.Workspace, ret *gjson.Json, 
 			di.Container.Logger.Error(fmt.Sprintf("middleware(%d) is not exist", v))
 			continue
 		}
-		w.generateMiddleware(ws, ret, &md)
+		w.generateMiddleware(ws, ret, &md, mds, middlewareIdsSet)
 	}
   return nil
 }
@@ -229,12 +236,40 @@ func (w *WorkspaceService) generateService(ws *models.Workspace, ret *gjson.Json
   return nil
 }
 
-func (w *WorkspaceService) generateMiddleware(ws *models.Workspace, ret *gjson.Json, md *models.Middleware) error {
+func (w *WorkspaceService) generateMiddleware(ws *models.Workspace, ret *gjson.Json, md *models.Middleware, mds []models.Middleware, mdSet *gset.Set) error {
+	keyPath := fmt.Sprintf("http.middlewares._middleware__%d.%s", md.ID, md.Category)
+	value := ret.Get(keyPath)
+	if value != nil {
+		// 该 middleware 已经生成过
+		return nil
+	}
+
 	data := md.GetRuleMap()
 	if data == nil {
 		return nil
 	}
-	ret.Set(fmt.Sprintf("http.middlewares._middleware__%d.%s", md.ID, md.Category), data)
+
+	if md.Category == "chain" {
+		// 对于 chain middleware 还需要把包含的其他  middleware 添加进来
+		chainIds, ok := data["middlewares"]
+		chainNames := []string{}
+
+		if ok {
+			for _, v := range chainIds.([]interface{}) {
+				id := gconv.Uint(v)
+				_, ok := lo.Find(mds, func(m models.Middleware) bool {
+					return m.ID == id
+				})
+				if ok {
+					mdSet.AddIfNotExist(id)
+					chainNames = append(chainNames, fmt.Sprintf("_middleware__%d", id))
+				}
+			}
+		}
+		data["middlewares"] = chainNames
+	}
+
+	ret.Set(keyPath, data)
   return nil
 }
 

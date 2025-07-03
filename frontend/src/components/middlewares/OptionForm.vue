@@ -13,8 +13,11 @@
 import _ from 'lodash';
 import { computed, defineProps } from 'vue';
 import VueForm from '@lljj/vue3-form-element';
+import { useMiddlewareStore } from '@/stores/middlewares';
 import ObjectField from './ObjectField.vue';
 import allSchema from './schema';
+
+const middlewareStore = useMiddlewareStore()
 
 const props = defineProps<{
   category: string,
@@ -22,7 +25,22 @@ const props = defineProps<{
 }>()
 
 const schema = computed(() => {
-  return allSchema[props.category + 'Middleware']
+  const data = _.cloneDeep(allSchema[props.category + 'Middleware'])
+
+  if (props.category === 'chain') {
+    const middlewareEnum: number[] = []
+    const middlewareEnumName: string[] = []
+    _.each(middlewareStore.middlewares, (s) => {
+      if (s.ID === props.formData.ID) { return }
+
+      middlewareEnum.push(s.ID!)
+      middlewareEnumName.push(`#${s.ID} ${s.Name}`)
+    })
+    data.properties.middlewares.items.enum = middlewareEnum
+    data.properties.middlewares.items.enumNames = middlewareEnumName
+  }
+
+  return data
 })
 const uiSchema = computed(() => {
   const ui: any = {}

@@ -81,7 +81,13 @@ const ruleList = computed(() => {
 })
 
 const optionsFormat = (row: Rule) => {
-  const middlewares = _.filter(middlewareStore.middlewares, (item: Middleware) => _.includes(row.Options?.middlewares, item.ID))
+  const middlewares = _.reduce(row.Options?.middlewares, (ret, id: number) => {
+    let obj = _.find(middlewareStore.middlewares, (item: Middleware) => item.ID === id)
+    if (obj) {
+      ret.push(obj)
+    }
+    return ret
+  }, [] as Middleware[])
   const service = _.find(serviceStore.services, (item: Service) => item.ID === row.Options?.service)
 
   const rules = [
